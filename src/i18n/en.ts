@@ -71,6 +71,7 @@ export const en = {
     title: 'Theses',
     subtitle_count: 'theses',
     search_placeholder: 'Search by name or student ID...',
+    add_button: 'Add Thesis',
     columns: {
       code: 'Thesis Code',
       name: 'Thesis Name',
@@ -81,6 +82,15 @@ export const en = {
       avg_score: 'Avg Score',
     },
     showing: 'Showing {count} of {total} results',
+    showing_range: 'Showing {from}–{to} of {total} theses',
+    tab_all: 'All',
+    filters: 'Filters',
+    no_results_title: 'No theses found',
+    no_results_desc: 'Try changing your filters or search terms',
+    clear_filters: 'Clear all filters',
+    pending_count: '{count} pending',
+    completed_count: '{count} completed',
+    click_hint: 'Click to view details',
   },
   status: {
     in_progress: 'In Progress',
