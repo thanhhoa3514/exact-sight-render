@@ -71,6 +71,7 @@ export const vi = {
     title: 'Luận văn',
     subtitle_count: 'luận văn',
     search_placeholder: 'Tìm theo tên hoặc MSSV...',
+    add_button: 'Thêm luận văn',
     columns: {
       code: 'Mã LV',
       name: 'Tên luận văn',
@@ -81,6 +82,15 @@ export const vi = {
       avg_score: 'Điểm TB',
     },
     showing: 'Hiển thị {count} trong {total} kết quả',
+    showing_range: 'Hiển thị {from}–{to} trong {total} luận văn',
+    tab_all: 'Tất cả',
+    filters: 'Bộ lọc',
+    no_results_title: 'Không tìm thấy luận văn',
+    no_results_desc: 'Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm',
+    clear_filters: 'Xóa tất cả bộ lọc',
+    pending_count: '{count} chờ duyệt',
+    completed_count: '{count} hoàn thành',
+    click_hint: 'Nhấn để xem chi tiết',
   },
   status: {
     in_progress: 'Đang thực hiện',
