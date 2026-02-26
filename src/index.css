@@ -116,8 +116,22 @@
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
+  h1 {
+    @apply text-2xl font-bold tracking-tight;
+    letter-spacing: -0.025em;
+  }
+
+  h2 {
+    @apply text-lg font-semibold;
+    letter-spacing: -0.015em;
+  }
+
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
+  }
+
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-foreground rounded;
   }
 }
 
@@ -131,4 +145,24 @@
   .shadow-elevated {
     box-shadow: var(--shadow-lg);
   }
+}
+
+@layer components {
+  .content-area {
+    background-color: hsl(var(--background));
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--foreground) / 0.04) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+}
+
+@keyframes bell-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-8deg); }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-4deg); }
+  80% { transform: rotate(4deg); }
+}
+
+.animate-bell-shake {
+  animation: bell-shake 0.5s ease-in-out;
 }
