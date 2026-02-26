@@ -2,43 +2,34 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard,
-  FileText,
-  BookOpen,
-  Users,
-  GraduationCap,
-  Shield,
-  Calendar,
-  TrendingUp,
-  BarChart3,
-  Settings,
-  Bell,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
+  LayoutDashboard, FileText, BookOpen, Users, GraduationCap,
+  Shield, Calendar, TrendingUp, BarChart3, Settings, Bell,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { label: 'Tổng quan', icon: LayoutDashboard, path: '/' },
-  { label: 'Đề tài', icon: FileText, path: '/de-tai' },
-  { label: 'Luận văn', icon: BookOpen, path: '/luan-van' },
-  { label: 'Sinh viên', icon: Users, path: '/sinh-vien' },
-  { label: 'Giảng viên', icon: GraduationCap, path: '/giang-vien' },
-  { label: 'Hội đồng', icon: Shield, path: '/hoi-dong' },
-  { label: 'Lịch bảo vệ', icon: Calendar, path: '/lich-bao-ve' },
-  { label: 'Tiến độ', icon: TrendingUp, path: '/tien-do' },
-  { label: 'Báo cáo', icon: BarChart3, path: '/bao-cao' },
-];
-
-const bottomItems = [
-  { label: 'Cài đặt', icon: Settings, path: '/cai-dat' },
-  { label: 'Thông báo', icon: Bell, path: '/thong-bao', badge: 3 },
-];
+import { useTranslation } from '@/contexts/LanguageContext';
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { label: t.nav.dashboard, icon: LayoutDashboard, path: '/' },
+    { label: t.nav.topics, icon: FileText, path: '/de-tai' },
+    { label: t.nav.theses, icon: BookOpen, path: '/luan-van' },
+    { label: t.nav.students, icon: Users, path: '/sinh-vien' },
+    { label: t.nav.lecturers, icon: GraduationCap, path: '/giang-vien' },
+    { label: t.nav.council, icon: Shield, path: '/hoi-dong' },
+    { label: t.nav.schedule, icon: Calendar, path: '/lich-bao-ve' },
+    { label: t.nav.progress, icon: TrendingUp, path: '/tien-do' },
+    { label: t.nav.reports, icon: BarChart3, path: '/bao-cao' },
+  ];
+
+  const bottomItems = [
+    { label: t.nav.settings, icon: Settings, path: '/cai-dat' },
+    { label: t.nav.notifications, icon: Bell, path: '/thong-bao', badge: 3 },
+  ];
 
   return (
     <motion.aside
@@ -74,12 +65,20 @@ export default function Sidebar() {
               key={item.path}
               to={item.path}
               className={cn(
-                'group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-150',
+                'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-100',
                 isActive
-                  ? 'bg-secondary font-medium text-foreground border-l-2 border-primary'
+                  ? 'bg-secondary font-medium text-foreground'
                   : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
               )}
             >
+              {/* Active left accent bar */}
+              {isActive && (
+                <motion.div
+                  layoutId="sidebar-active"
+                  className="absolute left-0 top-1 bottom-1 w-[3px] rounded-full bg-foreground"
+                  transition={{ type: 'spring' as const, damping: 25, stiffness: 300 }}
+                />
+              )}
               <item.icon className="h-[18px] w-[18px] shrink-0 transition-transform duration-150 group-hover:translate-x-0.5" />
               <AnimatePresence>
                 {!collapsed && (
@@ -104,7 +103,7 @@ export default function Sidebar() {
           <NavLink
             key={item.path}
             to={item.path}
-            className="group flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-all duration-150 hover:bg-secondary/60 hover:text-foreground"
+            className="group flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-all duration-100 hover:bg-secondary/60 hover:text-foreground"
           >
             <div className="relative shrink-0">
               <item.icon className="h-[18px] w-[18px]" />

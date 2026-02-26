@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid } from 'recharts';
 import PageHeader from '@/components/shared/PageHeader';
+import { useTranslation } from '@/contexts/LanguageContext';
 import { statusChartData } from '@/data/mock';
 
 const pageVariants = {
@@ -41,14 +42,15 @@ const tooltipStyle = {
 };
 
 export default function BaoCao() {
+  const { t } = useTranslation();
+
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate">
-      <PageHeader title="Báo cáo & Thống kê" description="Tổng hợp số liệu luận văn tốt nghiệp" />
+      <PageHeader title={t.reports.title} description={t.reports.description} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Donut - Status */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-          <h3 className="mb-4 font-display text-sm font-semibold text-foreground">Phân bổ theo trạng thái</h3>
+          <h3 className="mb-4 font-display text-sm font-semibold text-foreground">{t.reports.status_distribution}</h3>
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={statusChartData} cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3} dataKey="value" stroke="none">
@@ -67,9 +69,8 @@ export default function BaoCao() {
           </div>
         </div>
 
-        {/* Bar - By field */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-          <h3 className="mb-4 font-display text-sm font-semibold text-foreground">Số LV theo chuyên ngành</h3>
+          <h3 className="mb-4 font-display text-sm font-semibold text-foreground">{t.reports.by_field}</h3>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={byFieldData} layout="vertical" margin={{ left: 10 }}>
               <XAxis type="number" tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
@@ -80,9 +81,8 @@ export default function BaoCao() {
           </ResponsiveContainer>
         </div>
 
-        {/* Line - Trend */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-          <h3 className="mb-4 font-display text-sm font-semibold text-foreground">Xu hướng đăng ký theo học kỳ</h3>
+          <h3 className="mb-4 font-display text-sm font-semibold text-foreground">{t.reports.trend}</h3>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={trendData}>
               <CartesianGrid strokeDasharray="4 4" stroke="hsl(var(--border))" />
@@ -94,9 +94,8 @@ export default function BaoCao() {
           </ResponsiveContainer>
         </div>
 
-        {/* Bar - Top GV */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-card">
-          <h3 className="mb-4 font-display text-sm font-semibold text-foreground">Top giảng viên hướng dẫn</h3>
+          <h3 className="mb-4 font-display text-sm font-semibold text-foreground">{t.reports.top_supervisors}</h3>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={topGV} layout="vertical" margin={{ left: 10 }}>
               <XAxis type="number" tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
