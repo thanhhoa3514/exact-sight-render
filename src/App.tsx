@@ -9,6 +9,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import Dashboard from "@/pages/Dashboard";
 import DeTaiList from "@/pages/DeTaiList";
 import LuanVanList from "@/pages/LuanVanList";
+import SinhVienList from "@/pages/SinhVienList";
 import BaoCao from "@/pages/BaoCao";
 import Login from "@/pages/Login";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/de-tai" element={<DeTaiList />} />
                 <Route path="/luan-van" element={<LuanVanList />} />
+                <Route path="/sinh-vien" element={<SinhVienList />} />
                 <Route path="/bao-cao" element={<BaoCao />} />
               </Route>
               <Route path="*" element={<NotFound />} />
