@@ -2,16 +2,10 @@ import { motion } from 'framer-motion'
 import { Calendar, Users, GraduationCap, AlertCircle, Clock, PlayCircle, CheckCircle2 } from 'lucide-react'
 import type { Council } from '../../data/councilData'
 import { InitialName } from '@/helpers/InitialName'
+import getColor from '@/helpers/GetColor'
 
 
 
-// Generate deterministic colors
-const getColor = (str: string) => {
-    const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500']
-    let hash = 0
-    for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash)
-    return colors[Math.abs(hash) % colors.length]
-}
 
 const getStatusColor = (status: Council['status']) => {
     switch (status) {
@@ -38,13 +32,23 @@ interface CouncilCardProps {
 }
 
 export function CouncilCard({ council, onClick, index }: CouncilCardProps) {
-    const progressPercent = Math.round((council.sessions_completed / council.sessions_total) * 100) || 0
+    const progressPercent = council.sessions_total > 0
+        ? Math.min(100, Math.max(0, Math.round((council.sessions_completed / council.sessions_total) * 100)))
+        : 0
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onClick(council)
+                }
+            }}
             onClick={() => onClick(council)}
             className="bg-card border border-border/50 rounded-xl p-5 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group flex flex-col h-full"
         >

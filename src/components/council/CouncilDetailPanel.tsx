@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     X,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import type { Council } from '../../data/councilData'
 import { InitialName } from '@/helpers/InitialName'
+import getColor from '@/helpers/GetColor'
 
 interface CouncilDetailPanelProps {
     council: Council | null;
@@ -27,12 +28,6 @@ type TabType = 'members' | 'schedule' | 'grading' | 'notes';
 
 
 
-const getColor = (str: string) => {
-    const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500']
-    let hash = 0
-    for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash)
-    return colors[Math.abs(hash) % colors.length]
-}
 
 const getStatusColor = (status: Council['status'] | string) => {
     switch (status) {
@@ -47,12 +42,46 @@ const getStatusColor = (status: Council['status'] | string) => {
 export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: CouncilDetailPanelProps) {
     const [activeTab, setActiveTab] = useState<TabType>('members')
     const [selectedSessionForGrading, setSelectedSessionForGrading] = useState<string | null>(null)
+    const [scores, setScores] = useState<Record<string, number>>({})
+
+    // Reset state when council changes
+    useEffect(() => {
+        setActiveTab('members')
+        setSelectedSessionForGrading(null)
+    }, [council?.id])
+
+    // Reset scores when session changes
+    useEffect(() => {
+        setScores({})
+    }, [selectedSessionForGrading])
+
+    const handleScoreChange = (criterionId: string, maxScore: number, value: string) => {
+        if (value === '') {
+            setScores(prev => {
+                const next = { ...prev }
+                delete next[criterionId]
+                return next
+            })
+            return
+        }
+
+        const numValue = parseFloat(value)
+        if (!isNaN(numValue)) {
+            const clamped = Math.min(Math.max(0, numValue), maxScore)
+            setScores(prev => ({ ...prev, [criterionId]: clamped }))
+        }
+    }
+
+    const computeTotal = () => {
+        return Object.values(scores).reduce((sum, s) => sum + s, 0)
+    }
 
     if (!isOpen || !council) return null
 
     // Ensure state resets when a new council is selected
-    const progressPercent = Math.round((council.sessions_completed / council.sessions_total) * 100) || 0
-
+    const progressPercent = council.sessions_total > 0
+        ? Math.min(100, Math.max(0, Math.round((council.sessions_completed / council.sessions_total) * 100)))
+        : 0
     const handleBackdropClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) onClose()
     }
@@ -291,7 +320,7 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                                                     <Star className="w-4 h-4 mr-2 text-primary" />
                                                     Phiếu chấm điểm (Rubric)
                                                 </h4>
-                                                <span className="text-sm font-bold text-primary">Tổng: 0/10</span>
+                                                <span className="text-sm font-bold text-primary">Tổng: {computeTotal()}/10</span>
                                             </div>
                                             <div className="divide-y divide-border/50">
                                                 {council.criteria.map((criterion, idx) => (
@@ -310,6 +339,8 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                                                                     min="0"
                                                                     max={criterion.max_score}
                                                                     step="0.5"
+                                                                    value={scores[criterion.id] !== undefined ? scores[criterion.id] : ''}
+                                                                    onChange={(e) => handleScoreChange(criterion.id, criterion.max_score, e.target.value)}
                                                                     className="w-full bg-background border border-border rounded-md px-3 py-1.5 text-sm text-right focus:outline-none focus:ring-2 focus:ring-primary/50"
                                                                     placeholder={`/ ${criterion.max_score}`}
                                                                 />
@@ -319,10 +350,16 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                                                 ))}
                                             </div>
                                             <div className="p-4 bg-muted/20 border-t border-border/50 flex justify-end gap-3">
-                                                <button className="px-4 py-2 text-sm font-medium border border-border bg-background rounded-lg hover:bg-muted transition-colors">
+                                                <button
+                                                    onClick={() => console.log('Draft saved', scores)}
+                                                    className="px-4 py-2 text-sm font-medium border border-border bg-background rounded-lg hover:bg-muted transition-colors"
+                                                >
                                                     Lưu nháp
                                                 </button>
-                                                <button className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors shadow-sm">
+                                                <button
+                                                    onClick={() => console.log('Finalized', scores)}
+                                                    className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+                                                >
                                                     Hoàn tất chấm điểm
                                                 </button>
                                             </div>
