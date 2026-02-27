@@ -1,12 +1,8 @@
 import { ChevronRight } from 'lucide-react'
 import type { Lecturer } from '../../data/lecturerData'
+import { InitialName } from '@/helpers/InitialName'
 
-// Reuse helpers
-const getInitials = (name: string) => {
-    const parts = name.split(' ')
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase()
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-}
+
 
 const getAvatarColor = (id: string) => {
     const colors = [
@@ -50,7 +46,7 @@ export function LecturerListItem({ lecturer, onClick }: LecturerListItemProps) {
             {/* Avatar */}
             <div className={`w-10 h-10 rounded-full flex items-center justify-center
                        text-sm font-bold shrink-0 ${getAvatarColor(lecturer.id)} hidden sm:flex`}>
-                {getInitials(lecturer.name)}
+                {InitialName(lecturer.name)}
             </div>
 
             {/* Info Container */}
@@ -94,8 +90,8 @@ export function LecturerListItem({ lecturer, onClick }: LecturerListItemProps) {
                     </div>
                     <div>
                         <p className={`text-sm font-bold ${lecturer.gio_nghia_vu >= lecturer.gio_nghia_vu_dinh_muc
-                                ? 'text-emerald-600 dark:text-emerald-400'
-                                : 'text-gray-900 dark:text-gray-100'
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-gray-900 dark:text-gray-100'
                             }`}>
                             {lecturer.gio_nghia_vu}h
                         </p>
