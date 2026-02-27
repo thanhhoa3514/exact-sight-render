@@ -1,4 +1,4 @@
-import { Search, LayoutGrid, List as ListIcon, ChevronDown, Filter } from 'lucide-react'
+import { Search, LayoutGrid, List as ListIcon, ChevronDown } from 'lucide-react'
 
 export type TabKey = 'all' | 'cho_dien_ra' | 'dang_dien_ra' | 'da_hoan_thanh' | 'can_chu_y'
 
@@ -74,8 +74,8 @@ export function CouncilToolbar({
                     <button
                         onClick={() => setViewMode('grid')}
                         className={`p-1.5 rounded-md transition-all ${viewMode === 'grid'
-                                ? 'bg-muted text-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                            ? 'bg-muted text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                             }`}
                         title="Grid View"
                     >
@@ -84,8 +84,8 @@ export function CouncilToolbar({
                     <button
                         onClick={() => setViewMode('list')}
                         className={`p-1.5 rounded-md transition-all ${viewMode === 'list'
-                                ? 'bg-muted text-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                            ? 'bg-muted text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                             }`}
                         title="List View"
                     >

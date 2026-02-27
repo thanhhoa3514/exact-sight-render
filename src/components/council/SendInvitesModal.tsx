@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Send, CheckCircle2, AlertCircle } from 'lucide-react'
 import type { Council } from '../../data/councilData'
@@ -22,13 +22,24 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
 
     if (!isOpen || !council) return null
 
+    const sendTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    useEffect(() => {
+        return () => {
+            if (sendTimeoutRef.current) clearTimeout(sendTimeoutRef.current)
+            if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
+        }
+    }, [])
+
     const handleSend = () => {
         setSending(true)
-        // Simulate API call
-        setTimeout(() => {
+
+        sendTimeoutRef.current = setTimeout(() => {
             setSending(false)
             setSent(true)
-            setTimeout(() => {
+
+            closeTimeoutRef.current = setTimeout(() => {
                 setSent(false)
                 onClose()
             }, 2000)
@@ -58,6 +69,13 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="send-invites-title"
+                        tabIndex={-1}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Escape' && !sending) onClose()
+                        }}
                         className="relative w-full max-w-2xl bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
                     >
                         {/* Header */}
@@ -67,7 +85,7 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
                                     <Mail className="w-5 h-5 text-primary" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold">Gửi thông báo / Email</h2>
+                                    <h2 id="send-invites-title" className="text-xl font-bold">Gửi thông báo / Email</h2>
                                     <p className="text-sm text-muted-foreground">{council.name}</p>
                                 </div>
                             </div>
@@ -106,8 +124,8 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
                                             <button
                                                 onClick={() => setRecipientType('all')}
                                                 className={`p-3 rounded-xl border text-sm font-medium text-left transition-all ${recipientType === 'all'
-                                                        ? 'border-primary bg-primary/10 text-primary'
-                                                        : 'border-border/50 bg-background hover:border-border hover:bg-muted/50'
+                                                    ? 'border-primary bg-primary/10 text-primary'
+                                                    : 'border-border/50 bg-background hover:border-border hover:bg-muted/50'
                                                     }`}
                                             >
                                                 Tất cả
@@ -119,8 +137,8 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
                                             <button
                                                 onClick={() => setRecipientType('members')}
                                                 className={`p-3 rounded-xl border text-sm font-medium text-left transition-all ${recipientType === 'members'
-                                                        ? 'border-primary bg-primary/10 text-primary'
-                                                        : 'border-border/50 bg-background hover:border-border hover:bg-muted/50'
+                                                    ? 'border-primary bg-primary/10 text-primary'
+                                                    : 'border-border/50 bg-background hover:border-border hover:bg-muted/50'
                                                     }`}
                                             >
                                                 Thành viên HĐ
@@ -132,8 +150,8 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
                                             <button
                                                 onClick={() => setRecipientType('students')}
                                                 className={`p-3 rounded-xl border text-sm font-medium text-left transition-all ${recipientType === 'students'
-                                                        ? 'border-primary bg-primary/10 text-primary'
-                                                        : 'border-border/50 bg-background hover:border-border hover:bg-muted/50'
+                                                    ? 'border-primary bg-primary/10 text-primary'
+                                                    : 'border-border/50 bg-background hover:border-border hover:bg-muted/50'
                                                     }`}
                                             >
                                                 Sinh viên

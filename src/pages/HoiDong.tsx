@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { CouncilStatsBar } from '../components/council/CouncilStatsBar'
 import { CouncilToolbar, type TabKey } from '../components/council/CouncilToolbar'
 import { CouncilCard } from '../components/council/CouncilCard'
@@ -138,8 +138,8 @@ export function HoiDong() {
                                             key={i + 1}
                                             onClick={() => setCurrentPage(i + 1)}
                                             className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${currentPage === i + 1
-                                                    ? 'bg-primary text-primary-foreground'
-                                                    : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'hover:bg-muted text-muted-foreground hover:text-foreground'
                                                 }`}
                                         >
                                             {i + 1}
@@ -196,5 +196,4 @@ export function HoiDong() {
     )
 }
 
-// Temporary icon import fallback
-import { Search } from 'lucide-react'
+
