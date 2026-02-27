@@ -1,13 +1,8 @@
 import { motion } from 'framer-motion'
 import { AlertCircle } from 'lucide-react'
 import type { Lecturer } from '../../data/lecturerData'
+import { InitialName } from '@/helpers/InitialName'
 
-// Helpers (Mocking for now, will extract to a utils file if used elsewhere)
-const getInitials = (name: string) => {
-    const parts = name.split(' ')
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase()
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-}
 
 const getAvatarColor = (id: string) => {
     const colors = [
@@ -75,7 +70,7 @@ export function LecturerCard({ lecturer, onClick }: LecturerCardProps) {
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center
                          text-base font-bold shrink-0 ring-2 ring-white dark:ring-gray-900
                          ${getAvatarColor(lecturer.id)}`}>
-                    {getInitials(lecturer.name)}
+                    {InitialName(lecturer.name)}
                 </div>
                 <div className="flex-1 min-w-0 pr-16 /* padding for badge */">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100
@@ -126,8 +121,8 @@ export function LecturerCard({ lecturer, onClick }: LecturerCardProps) {
                 </div>
                 <div>
                     <p className={`text-base font-bold ${lecturer.gio_nghia_vu >= lecturer.gio_nghia_vu_dinh_muc
-                            ? 'text-emerald-600 dark:text-emerald-400'
-                            : 'text-gray-900 dark:text-gray-100'
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-gray-900 dark:text-gray-100'
                         }`}>
                         {lecturer.gio_nghia_vu}
                     </p>
