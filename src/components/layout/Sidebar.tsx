@@ -4,21 +4,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, FileText, BookOpen, Users, GraduationCap,
   Shield, Calendar, TrendingUp, BarChart3, Settings, Bell,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, PlayCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/contexts/LanguageContext';
 
-export default function Sidebar() {
+interface SidebarProps {
+  onRestartTour?: () => void;
+}
+
+export default function Sidebar({ onRestartTour }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const { t } = useTranslation();
 
   const navItems = [
-    { label: t.nav.dashboard, icon: LayoutDashboard, path: '/' },
-    { label: t.nav.topics, icon: FileText, path: '/de-tai' },
-    { label: t.nav.theses, icon: BookOpen, path: '/luan-van' },
-    { label: t.nav.students, icon: Users, path: '/sinh-vien' },
+    { label: t.nav.dashboard, icon: LayoutDashboard, path: '/', id: 'nav-dashboard' },
+    { label: t.nav.topics, icon: FileText, path: '/de-tai', id: 'nav-de-tai' },
+    { label: t.nav.theses, icon: BookOpen, path: '/luan-van', id: 'nav-luan-van' },
+    { label: t.nav.students, icon: Users, path: '/sinh-vien', id: 'nav-sinh-vien' },
     { label: t.nav.lecturers, icon: GraduationCap, path: '/giang-vien' },
     { label: t.nav.council, icon: Shield, path: '/hoi-dong' },
     { label: t.nav.schedule, icon: Calendar, path: '/lich-bao-ve' },
@@ -64,6 +68,7 @@ export default function Sidebar() {
             <NavLink
               key={item.path}
               to={item.path}
+              id={'id' in item ? item.id : undefined}
               className={cn(
                 'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-100',
                 isActive
@@ -127,6 +132,30 @@ export default function Sidebar() {
             </AnimatePresence>
           </NavLink>
         ))}
+
+        {/* Restart Tour Button */}
+        {onRestartTour && (
+          <button
+            onClick={onRestartTour}
+            className="group flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-all duration-100 hover:bg-secondary/60 hover:text-foreground"
+          >
+            <div className="relative shrink-0">
+              <PlayCircle className="h-[18px] w-[18px]" />
+            </div>
+            <AnimatePresence>
+              {!collapsed && (
+                <motion.span
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: 'auto' }}
+                  exit={{ opacity: 0, width: 0 }}
+                  className="overflow-hidden whitespace-nowrap"
+                >
+                  Xem lại hướng dẫn
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        )}
 
         {/* User */}
         <div className="mt-2 flex items-center gap-3 rounded-md border border-border px-3 py-2">
