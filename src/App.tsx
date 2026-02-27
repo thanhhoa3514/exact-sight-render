@@ -14,6 +14,7 @@ import BaoCao from "@/pages/BaoCao";
 import Login from "@/pages/Login";
 import NotFound from "./pages/NotFound";
 import { LichBaoVe } from "@/pages/LichBaoVe";
+import { GiangVien } from "@/pages/GiangVien";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
                 <Route path="/sinh-vien" element={<SinhVienList />} />
                 <Route path="/bao-cao" element={<BaoCao />} />
                 <Route path="/lich-bao-ve" element={<LichBaoVe />} />
+                <Route path="/giang-vien" element={<GiangVien />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
