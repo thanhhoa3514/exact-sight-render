@@ -61,9 +61,9 @@ export function LichBaoVe() {
             // Navigate days when panel open
             if (isPanelOpen && selectedDate) {
                 if (e.key === 'ArrowRight') {
-                    handleNavigateDay(1)
+                    setSelectedDate(prev => prev ? addDays(prev, 1) : prev)
                 } else if (e.key === 'ArrowLeft') {
-                    handleNavigateDay(-1)
+                    setSelectedDate(prev => prev ? addDays(prev, -1) : prev)
                 }
             }
         }

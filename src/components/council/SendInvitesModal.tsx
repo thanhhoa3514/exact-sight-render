@@ -20,8 +20,6 @@ Phòng Đào tạo xin thông báo lịch bảo vệ khóa luận tốt nghiệp
 
 Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
 
-    if (!isOpen || !council) return null
-
     const sendTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -31,6 +29,8 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
             if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
         }
     }, [])
+
+    if (!isOpen || !council) return null
 
     const handleSend = () => {
         setSending(true)

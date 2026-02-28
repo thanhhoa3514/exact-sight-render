@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { LecturerStatsBar } from '../components/lecturer/LecturerStatsBar'
 import { LecturerToolbar, type TabKey } from '../components/lecturer/LecturerToolbar'
 import { LecturerCard } from '../components/lecturer/LecturerCard'
@@ -91,7 +91,7 @@ export function GiangVien() {
     }
 
     // Reset page on filter change
-    useMemo(() => setCurrentPage(1), [searchQuery, selectedDept, activeTab])
+    useEffect(() => { setCurrentPage(1) }, [searchQuery, selectedDept, activeTab])
 
     return (
         <div className="p-6 max-w-7xl mx-auto h-[calc(100vh-64px)] overflow-y-auto">

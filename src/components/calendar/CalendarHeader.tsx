@@ -107,7 +107,7 @@ export function CalendarHeader({
                         ].map(({ key, label, icon: Icon }) => (
                             <button
                                 key={key}
-                                onClick={() => onViewChange(key as any)}
+                                onClick={() => onViewChange(key as 'month' | 'week' | 'day' | 'agenda')}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md
                             text-xs font-medium transition-all duration-150 ${view === key
                                         ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'

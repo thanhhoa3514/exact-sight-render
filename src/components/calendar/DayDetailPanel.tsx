@@ -206,7 +206,7 @@ export function DayDetailPanel({
                                                     onAddNote({
                                                         date: format(date, 'yyyy-MM-dd'),
                                                         content,
-                                                        color: color as any
+                                                        color: color as PersonalNote['color']
                                                     })
                                                     setIsAddingNote(false)
                                                 }}
@@ -294,7 +294,13 @@ function SystemEventCard({ event }: { event: CalendarEvent }) {
     )
 }
 
-function AddNoteForm({ date, onSave, onCancel }: any) {
+interface AddNoteFormProps {
+    date: Date;
+    onSave: (content: string, color: string) => void;
+    onCancel: () => void;
+}
+
+function AddNoteForm({ date, onSave, onCancel }: AddNoteFormProps) {
     const [content, setContent] = useState('')
     const [color, setColor] = useState('yellow') // default bright color
 
@@ -375,7 +381,13 @@ function AddNoteForm({ date, onSave, onCancel }: any) {
     )
 }
 
-function NoteCard({ note, onEdit, onDelete }: any) {
+interface NoteCardProps {
+    note: PersonalNote;
+    onEdit: (content: string) => void;
+    onDelete: () => void;
+}
+
+function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
     const [isEditing, setIsEditing] = useState(false)
     const [editContent, setEditContent] = useState(note.content)
 
