@@ -69,6 +69,15 @@ export const EVENT_TYPES: Record<EventType, EventConfig> = {
     },
 }
 
+export interface EventMeta {
+    council_id?: string
+    thesis_count?: number
+    students?: string[]
+    affected_students?: number
+    milestone_id?: string
+    public?: boolean
+}
+
 export interface CalendarEvent {
     id: string
     type: EventType
@@ -77,7 +86,7 @@ export interface CalendarEvent {
     time_start?: string // 'HH:mm'
     time_end?: string
     location?: string
-    meta?: Record<string, any>
+    meta?: EventMeta
 }
 
 export interface PersonalNote {

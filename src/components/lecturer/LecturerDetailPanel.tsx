@@ -47,6 +47,7 @@ export function LecturerDetailPanel({
     // Reset tab when lecturer changes
     useEffect(() => {
         if (lecturer) setActiveTab('thong_tin')
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lecturer?.id])
 
     if (!lecturer) return null
@@ -150,8 +151,8 @@ export function LecturerDetailPanel({
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as TabType)}
                                     className={`py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
-                                            ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                                        ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
                                         }`}
                                 >
                                     {tab.label}

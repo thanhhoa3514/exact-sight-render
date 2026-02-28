@@ -16,6 +16,8 @@ import {
 import type { Council } from '../../data/councilData'
 import { InitialName } from '@/helpers/InitialName'
 import getColor from '@/helpers/GetColor'
+import { GetStatusColor } from '@/helpers/GetStatusColor'
+
 
 interface CouncilDetailPanelProps {
     council: Council | null;
@@ -26,18 +28,6 @@ interface CouncilDetailPanelProps {
 
 type TabType = 'members' | 'schedule' | 'grading' | 'notes';
 
-
-
-
-const getStatusColor = (status: Council['status'] | string) => {
-    switch (status) {
-        case 'Chờ diễn ra': return 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-        case 'Đang diễn ra': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-        case 'Đã hoàn thành': return 'bg-purple-500/10 text-purple-500 border-purple-500/20'
-        case 'Cần chú ý': return 'bg-rose-500/10 text-rose-500 border-rose-500/20'
-        default: return 'bg-muted text-muted-foreground border-border/50'
-    }
-}
 
 export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: CouncilDetailPanelProps) {
     const [activeTab, setActiveTab] = useState<TabType>('members')
@@ -108,7 +98,7 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                                 <div>
                                     <div className="flex items-center gap-3 mb-1">
                                         <h2 className="text-2xl font-bold tracking-tight">{council.name}</h2>
-                                        <span className={`px-2.5 py-1 text-xs font-medium rounded-full border flex items-center ${getStatusColor(council.status)}`}>
+                                        <span className={`px-2.5 py-1 text-xs font-medium rounded-full border flex items-center ${GetStatusColor(council.status)}`}>
                                             {council.status}
                                         </span>
                                     </div>
@@ -253,7 +243,7 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                                                             <span className="font-mono text-sm text-primary font-medium bg-primary/10 px-2 py-0.5 rounded">
                                                                 {session.time_start} - {session.time_end}
                                                             </span>
-                                                            <span className={`px-2 py-0.5 text-[10px] font-medium rounded border ${getStatusColor(session.status)}`}>
+                                                            <span className={`px-2 py-0.5 text-[10px] font-medium rounded border ${GetStatusColor(session.status)}`}>
                                                                 {session.status}
                                                             </span>
                                                         </div>

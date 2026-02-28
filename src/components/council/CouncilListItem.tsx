@@ -1,26 +1,9 @@
-import { ChevronRight, Calendar, Users, GraduationCap, AlertCircle, Clock, PlayCircle, CheckCircle2 } from 'lucide-react'
+import { ChevronRight, Calendar, Users, GraduationCap } from 'lucide-react'
 import type { Council } from '../../data/councilData'
 import { InitialName } from '@/helpers/InitialName'
 import getColor from '@/helpers/GetColor'
-
-
-const getStatusColor = (status: Council['status']) => {
-    switch (status) {
-        case 'Chờ diễn ra': return 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-        case 'Đang diễn ra': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-        case 'Đã hoàn thành': return 'bg-purple-500/10 text-purple-500 border-purple-500/20'
-        case 'Cần chú ý': return 'bg-rose-500/10 text-rose-500 border-rose-500/20'
-    }
-}
-
-const getStatusIcon = (status: Council['status']) => {
-    switch (status) {
-        case 'Chờ diễn ra': return <Clock className="w-3.5 h-3.5 mr-1.5" />
-        case 'Đang diễn ra': return <PlayCircle className="w-3.5 h-3.5 mr-1.5" />
-        case 'Đã hoàn thành': return <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-        case 'Cần chú ý': return <AlertCircle className="w-3.5 h-3.5 mr-1.5" />
-    }
-}
+import { GetStatusColor } from '@/helpers/GetStatusColor'
+import { GetStatusIcon } from '@/helpers/GetStatusIcon'
 
 interface CouncilListItemProps {
     council: Council;
@@ -50,8 +33,8 @@ export function CouncilListItem({ council, onClick }: CouncilListItemProps) {
                     <h3 className="font-semibold text-base truncate group-hover:text-primary transition-colors">
                         {council.name}
                     </h3>
-                    <span className={`px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded border flex items-center whitespace-nowrap ${getStatusColor(council.status)}`}>
-                        {getStatusIcon(council.status)}
+                    <span className={`px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded border flex items-center whitespace-nowrap ${GetStatusColor(council.status)}`}>
+                        {GetStatusIcon(council.status)}
                         <span className="hidden sm:inline">{council.status}</span>
                     </span>
                 </div>
