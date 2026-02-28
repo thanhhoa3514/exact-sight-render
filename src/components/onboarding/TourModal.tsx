@@ -43,7 +43,7 @@ export function TourModal({ step, currentIndex, totalSteps, progress, onNext, on
             </div>
 
             {/* ── TEXT CONTENT ── */}
-            <div className="px-6 pt-5 pb-4">
+            <div className="px-6 pt-5 pb-4 min-h-[140px] flex flex-col">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={step.id + '_text'}
@@ -51,12 +51,13 @@ export function TourModal({ step, currentIndex, totalSteps, progress, onNext, on
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.2 }}
+                        className="flex-1 flex flex-col"
                     >
                         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100
                            tracking-tight leading-snug mb-2">
                             {step.title}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1">
                             {step.description}
                         </p>
 
@@ -70,22 +71,22 @@ export function TourModal({ step, currentIndex, totalSteps, progress, onNext, on
 
                         {/* Keyboard shortcuts (step 'keyboard') */}
                         {step.shortcuts && (
-                            <div className="mt-3 space-y-2">
+                            <div className="mt-3 space-y-2 max-h-[120px] overflow-y-auto">
                                 {step.shortcuts.map((sc: TourShortcut, i: number) => (
-                                    <div key={i} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-1">
+                                    <div key={i} className="flex items-center justify-between gap-2 pr-2">
+                                        <div className="flex items-center gap-1 flex-shrink-0">
                                             {sc.keys.map((k: string) => (
                                                 <kbd key={k}
                                                     className="px-2 py-0.5 text-xs font-mono font-medium
                                      bg-gray-100 dark:bg-gray-800
                                      border border-gray-300 dark:border-gray-600
                                      rounded-md text-gray-700 dark:text-gray-300
-                                     shadow-[0_1px_0_rgba(0,0,0,0.15)]">
+                                     shadow-[0_1px_0_rgba(0,0,0,0.15)] whitespace-nowrap">
                                                     {k}
                                                 </kbd>
                                             ))}
                                         </div>
-                                        <span className="text-xs text-gray-500">{sc.desc}</span>
+                                        <span className="text-xs text-gray-500 line-clamp-2">{sc.desc}</span>
                                     </div>
                                 ))}
                             </div>
