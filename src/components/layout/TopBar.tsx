@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Search, Bell, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CommandPalette } from '@/components/shared/CommandPalette';
 
 const pathLabelsMap: Record<string, { vi: string; en: string }> = {
   '/': { vi: 'Tổng quan', en: 'Dashboard' },
@@ -23,6 +25,7 @@ export default function TopBar() {
   const { lang, setLang, t } = useTranslation();
   const pathLabel = pathLabelsMap[location.pathname];
   const currentLabel = pathLabel ? pathLabel[lang] : 'Page';
+  const [commandOpen, setCommandOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-card/80 px-4 sm:px-6 backdrop-blur-md">
@@ -32,16 +35,17 @@ export default function TopBar() {
         <span className="font-medium text-foreground truncate">{currentLabel}</span>
       </div>
       <div className="flex items-center gap-1 sm:gap-2">
-        <Button variant="outline" size="sm" className="gap-2 text-muted-foreground hidden sm:flex">
+        <Button variant="outline" size="sm" className="gap-2 text-muted-foreground hidden sm:flex" onClick={() => setCommandOpen(true)}>
           <Search className="h-4 w-4" />
           <span>{t.topbar.search}</span>
           <kbd className="ml-2 rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
             ⌘K
           </kbd>
         </Button>
-        <Button variant="ghost" size="icon" className="h-9 w-9 sm:hidden text-muted-foreground hover:bg-secondary rounded-lg">
+        <Button variant="ghost" size="icon" className="h-9 w-9 sm:hidden text-muted-foreground hover:bg-secondary rounded-lg" onClick={() => setCommandOpen(true)}>
           <Search className="h-4 w-4" />
         </Button>
+        <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
 
         {/* Language Toggle */}
         <div className="relative flex h-8 w-[68px] items-center rounded-full bg-secondary p-0.5">
@@ -52,17 +56,15 @@ export default function TopBar() {
           />
           <button
             onClick={() => setLang('vi')}
-            className={`relative z-10 flex h-7 w-[30px] items-center justify-center rounded-full text-xs font-semibold tracking-wide transition-colors ${
-              lang === 'vi' ? 'text-foreground' : 'text-muted-foreground'
-            }`}
+            className={`relative z-10 flex h-7 w-[30px] items-center justify-center rounded-full text-xs font-semibold tracking-wide transition-colors ${lang === 'vi' ? 'text-foreground' : 'text-muted-foreground'
+              }`}
           >
             VI
           </button>
           <button
             onClick={() => setLang('en')}
-            className={`relative z-10 flex h-7 w-[30px] items-center justify-center rounded-full text-xs font-semibold tracking-wide transition-colors ${
-              lang === 'en' ? 'text-foreground' : 'text-muted-foreground'
-            }`}
+            className={`relative z-10 flex h-7 w-[30px] items-center justify-center rounded-full text-xs font-semibold tracking-wide transition-colors ${lang === 'en' ? 'text-foreground' : 'text-muted-foreground'
+              }`}
           >
             EN
           </button>
