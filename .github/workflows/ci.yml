@@ -27,7 +27,7 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Lint (vite lint)
-        run: npm vite lint
+        run: npm run lint
 
       - name: Build (vite build)
-        run: npx vite build
+        run: npm run build
