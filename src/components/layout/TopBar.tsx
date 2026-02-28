@@ -25,19 +25,22 @@ export default function TopBar() {
   const currentLabel = pathLabel ? pathLabel[lang] : 'Page';
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-card/80 px-6 backdrop-blur-md">
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-muted-foreground">{t.topbar.breadcrumb_home}</span>
-        <span className="text-muted-foreground">/</span>
-        <span className="font-medium text-foreground">{currentLabel}</span>
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-card/80 px-4 sm:px-6 backdrop-blur-md">
+      <div className="flex items-center gap-2 text-xs sm:text-sm">
+        <span className="hidden text-muted-foreground sm:inline">{t.topbar.breadcrumb_home}</span>
+        <span className="hidden text-muted-foreground sm:inline">/</span>
+        <span className="font-medium text-foreground truncate">{currentLabel}</span>
       </div>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="gap-2 text-muted-foreground">
+      <div className="flex items-center gap-1 sm:gap-2">
+        <Button variant="outline" size="sm" className="gap-2 text-muted-foreground hidden sm:flex">
           <Search className="h-4 w-4" />
-          <span className="hidden sm:inline">{t.topbar.search}</span>
-          <kbd className="ml-2 hidden rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground sm:inline">
+          <span>{t.topbar.search}</span>
+          <kbd className="ml-2 rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
             ⌘K
           </kbd>
+        </Button>
+        <Button variant="ghost" size="icon" className="h-9 w-9 sm:hidden text-muted-foreground hover:bg-secondary rounded-lg">
+          <Search className="h-4 w-4" />
         </Button>
 
         {/* Language Toggle */}

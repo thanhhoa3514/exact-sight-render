@@ -5,6 +5,7 @@ import { LecturerCard } from '../components/lecturer/LecturerCard'
 import { LecturerListItem } from '../components/lecturer/LecturerListItem'
 import { LecturerDetailPanel } from '../components/lecturer/LecturerDetailPanel'
 import { AssignStudentModal } from '../components/lecturer/AssignStudentModal'
+import LoadingSpinner from '../components/shared/LoadingSpinner'
 import { mockLecturers, calculateGlobalStats, type Lecturer } from '../data/lecturerData'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle } from 'lucide-react'
@@ -18,11 +19,17 @@ export function GiangVien() {
     const [selectedDept, setSelectedDept] = useState('all')
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
     const [currentPage, setCurrentPage] = useState(1)
+    const [loading, setLoading] = useState(true)
 
     // Panel & Modal State
     const [selectedLecturer, setSelectedLecturer] = useState<Lecturer | null>(null)
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
     const [lecturerToAssign, setLecturerToAssign] = useState<Lecturer | null>(null)
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 700)
+        return () => clearTimeout(timer)
+    }, [])
 
     // Derived Global Stats
     const globalStats = useMemo(() => calculateGlobalStats(mockLecturers), [])
@@ -93,12 +100,16 @@ export function GiangVien() {
     // Reset page on filter change
     useEffect(() => { setCurrentPage(1) }, [searchQuery, selectedDept, activeTab])
 
+    if (loading) {
+        return <LoadingSpinner fullScreen text="Đang tải danh sách giảng viên..." />
+    }
+
     return (
-        <div className="p-6 max-w-7xl mx-auto h-[calc(100vh-64px)] overflow-y-auto">
+        <div className="p-4 sm:p-6 max-w-7xl mx-auto h-[calc(100vh-64px)] overflow-y-auto">
             {/* Page Header */}
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">Giảng viên</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="mb-6 sm:mb-8">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">Giảng viên</h1>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                     Quản lý thư mục giảng viên, định mức nghĩa vụ và theo dõi tiến độ công việc trong kỳ.
                 </p>
             </div>

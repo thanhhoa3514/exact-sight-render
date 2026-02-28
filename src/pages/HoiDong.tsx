@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Plus, Search } from 'lucide-react'
 import { CouncilStatsBar } from '../components/council/CouncilStatsBar'
 import { CouncilToolbar, type TabKey } from '../components/council/CouncilToolbar'
@@ -6,12 +6,14 @@ import { CouncilCard } from '../components/council/CouncilCard'
 import { CouncilListItem } from '../components/council/CouncilListItem'
 import { CouncilDetailPanel } from '../components/council/CouncilDetailPanel'
 import { SendInvitesModal } from '../components/council/SendInvitesModal'
+import LoadingSpinner from '../components/shared/LoadingSpinner'
 import { mockCouncils, calculateCouncilStats, type Council } from '../data/councilData'
 
 export function HoiDong() {
     const [searchQuery, setSearchQuery] = useState('')
     const [activeTab, setActiveTab] = useState<TabKey>('all')
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+    const [loading, setLoading] = useState(true)
 
     // Selection & Modals
     const [selectedCouncil, setSelectedCouncil] = useState<Council | null>(null)
@@ -21,6 +23,11 @@ export function HoiDong() {
     // Pagination (Simple implementation for UI purposes)
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 8
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 700)
+        return () => clearTimeout(timer)
+    }, [])
 
     const stats = useMemo(() => calculateCouncilStats(mockCouncils), [])
 
@@ -64,6 +71,10 @@ export function HoiDong() {
     const handleOpenInvites = () => {
         // Keep detail open, just show modal on top
         setIsInvitesOpen(true)
+    }
+
+    if (loading) {
+        return <LoadingSpinner fullScreen text="Đang tải hội đồng..." />
     }
 
     return (

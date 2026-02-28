@@ -12,6 +12,7 @@ import { CalendarHeader } from '../components/calendar/CalendarHeader'
 import { EventLegend } from '../components/calendar/EventLegend'
 import { MonthView } from '../components/calendar/MonthView'
 import { DayDetailPanel } from '../components/calendar/DayDetailPanel'
+import LoadingSpinner from '../components/shared/LoadingSpinner'
 
 import { mockSystemEvents, type PersonalNote } from '../data/calendarData'
 
@@ -21,6 +22,7 @@ export function LichBaoVe() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
     const [isPanelOpen, setIsPanelOpen] = useState(false)
     const [notes, setNotes] = useState<PersonalNote[]>([])
+    const [loading, setLoading] = useState(true)
 
     // Calculate upcoming events for the badge
     const upcomingCount = mockSystemEvents.filter(e => {
@@ -35,14 +37,18 @@ export function LichBaoVe() {
 
     // Load notes from localStorage on mount
     useEffect(() => {
-        const storedNotes = localStorage.getItem('personal_notes')
-        if (storedNotes) {
-            try {
-                setNotes(JSON.parse(storedNotes))
-            } catch (e) {
-                console.error('Failed to parse stored notes')
+        const timer = setTimeout(() => {
+            const storedNotes = localStorage.getItem('personal_notes')
+            if (storedNotes) {
+                try {
+                    setNotes(JSON.parse(storedNotes))
+                } catch (e) {
+                    console.error('Failed to parse stored notes')
+                }
             }
-        }
+            setLoading(false)
+        }, 600)
+        return () => clearTimeout(timer)
     }, [])
 
     // Save notes to localStorage on change
@@ -111,6 +117,10 @@ export function LichBaoVe() {
 
     const handleDeleteNote = (id: string) => {
         setNotes(prev => prev.filter(n => n.id !== id))
+    }
+
+    if (loading) {
+        return <LoadingSpinner fullScreen text="Đang tải lịch..." />
     }
 
     return (

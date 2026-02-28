@@ -6,6 +6,8 @@ import StatusBadge from '@/components/shared/StatusBadge';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { mockActivities, mockDeTai, statusChartData } from '@/data/mock';
 import { useEffect, useState } from 'react';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { SkeletonGrid } from '@/components/shared/SkeletonLoader';
 
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -78,6 +80,13 @@ const totalChart = statusChartData.reduce((s, d) => s + d.value, 0);
 
 export default function Dashboard() {
   const { t, lang } = useTranslation();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
   const today = new Date();
   const hour = today.getHours();
   const greeting = hour < 12 ? t.dashboard.greeting_morning : hour < 18 ? t.dashboard.greeting_afternoon : t.dashboard.greeting_evening;
@@ -88,6 +97,18 @@ export default function Dashboard() {
   const smartSummary = pendingCount > 0
     ? t.dashboard.smart_summary_pending.replace('{pending}', String(pendingCount)).replace('{overdue}', String(overdueCount))
     : t.dashboard.smart_summary_ok;
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <div className="h-8 w-64 rounded bg-muted animate-pulse" />
+          <div className="h-4 w-48 rounded bg-muted animate-pulse" />
+        </div>
+        <SkeletonGrid />
+      </div>
+    );
+  }
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate">
