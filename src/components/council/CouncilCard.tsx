@@ -3,27 +3,8 @@ import { Calendar, Users, GraduationCap, AlertCircle, Clock, PlayCircle, CheckCi
 import type { Council } from '../../data/councilData'
 import { InitialName } from '@/helpers/InitialName'
 import getColor from '@/helpers/GetColor'
-
-
-
-
-const getStatusColor = (status: Council['status']) => {
-    switch (status) {
-        case 'Chờ diễn ra': return 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-        case 'Đang diễn ra': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-        case 'Đã hoàn thành': return 'bg-purple-500/10 text-purple-500 border-purple-500/20'
-        case 'Cần chú ý': return 'bg-rose-500/10 text-rose-500 border-rose-500/20'
-    }
-}
-
-const getStatusIcon = (status: Council['status']) => {
-    switch (status) {
-        case 'Chờ diễn ra': return <Clock className="w-3.5 h-3.5 mr-1.5" />
-        case 'Đang diễn ra': return <PlayCircle className="w-3.5 h-3.5 mr-1.5" />
-        case 'Đã hoàn thành': return <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-        case 'Cần chú ý': return <AlertCircle className="w-3.5 h-3.5 mr-1.5" />
-    }
-}
+import { GetStatusIcon } from '@/helpers/GetStatusIcon'
+import { GetStatusColor } from '@/helpers/GetStatusColor'
 
 interface CouncilCardProps {
     council: Council;
@@ -60,8 +41,8 @@ export function CouncilCard({ council, onClick, index }: CouncilCardProps) {
                         {council.field}
                     </p>
                 </div>
-                <span className={`px-2.5 py-1 text-xs font-medium rounded-full border flex items-center whitespace-nowrap ${getStatusColor(council.status)}`}>
-                    {getStatusIcon(council.status)}
+                <span className={`px-2.5 py-1 text-xs font-medium rounded-full border flex items-center whitespace-nowrap ${GetStatusColor(council.status)}`}>
+                    {GetStatusIcon(council.status)}
                     {council.status}
                 </span>
             </div>
