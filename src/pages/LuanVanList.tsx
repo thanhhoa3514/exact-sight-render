@@ -23,12 +23,12 @@ const STATUS_TABS: (ThesisStatus | 'all')[] = [
 ];
 
 const PROGRESS_MAP: Record<string, { pct: number; label: string; colorClass: string }> = {
-  cho_duyet:      { pct: 5,   label: 'Chờ duyệt',   colorClass: 'bg-amber-400' },
-  da_duyet:       { pct: 20,  label: 'Đã duyệt',    colorClass: 'bg-blue-400' },
-  dang_thuc_hien: { pct: 55,  label: 'Đang TH',     colorClass: 'bg-violet-500' },
-  hoan_thanh:     { pct: 100, label: 'Hoàn thành',   colorClass: 'bg-emerald-500' },
-  bi_tu_choi:     { pct: 0,   label: 'Từ chối',      colorClass: 'bg-red-400' },
-  da_huy:         { pct: 0,   label: 'Đã hủy',       colorClass: 'bg-muted-foreground' },
+  cho_duyet: { pct: 5, label: 'Chờ duyệt', colorClass: 'bg-amber-400' },
+  da_duyet: { pct: 20, label: 'Đã duyệt', colorClass: 'bg-blue-400' },
+  dang_thuc_hien: { pct: 55, label: 'Đang TH', colorClass: 'bg-violet-500' },
+  hoan_thanh: { pct: 100, label: 'Hoàn thành', colorClass: 'bg-emerald-500' },
+  bi_tu_choi: { pct: 0, label: 'Từ chối', colorClass: 'bg-red-400' },
+  da_huy: { pct: 0, label: 'Đã {t.detail.cancel}', colorClass: 'bg-muted-foreground' },
 };
 
 function getPageNumbers(current: number, total: number): (number | '...')[] {
@@ -221,17 +221,15 @@ export default function LuanVanList() {
           <div className="flex items-center rounded-lg border border-border p-0.5">
             <button
               onClick={() => setViewMode('grid')}
-              className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${viewMode === 'grid' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${viewMode === 'list' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
             >
               <List className="h-3.5 w-3.5" />
             </button>
@@ -260,19 +258,17 @@ export default function LuanVanList() {
           <button
             key={tab}
             onClick={() => setStatusTab(tab)}
-            className={`relative flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-sm transition-colors ${
-              statusTab === tab
+            className={`relative flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-sm transition-colors ${statusTab === tab
                 ? 'font-semibold text-foreground'
                 : 'text-muted-foreground hover:text-foreground'
-            }`}
+              }`}
           >
             {getStatusLabel(tab)}
             {(statusCounts[tab] ?? 0) > 0 && (
-              <span className={`rounded-full px-1.5 text-[11px] font-medium ${
-                statusTab === tab
+              <span className={`rounded-full px-1.5 text-[11px] font-medium ${statusTab === tab
                   ? 'bg-foreground text-background'
                   : 'bg-secondary text-muted-foreground'
-              }`}>
+                }`}>
                 {statusCounts[tab]}
               </span>
             )}
@@ -458,11 +454,10 @@ export default function LuanVanList() {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page as number)}
-                  className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors duration-100 ${
-                    page === safePage
+                  className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors duration-100 ${page === safePage
                       ? 'bg-foreground text-background'
                       : 'text-muted-foreground hover:bg-secondary'
-                  }`}
+                    }`}
                 >
                   {page}
                 </button>

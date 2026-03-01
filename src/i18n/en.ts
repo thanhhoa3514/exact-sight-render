@@ -110,6 +110,9 @@ export const en = {
   },
   detail: {
     close: 'Close',
+    cancel: 'Cancel',
+    save: 'Save',
+    assign_council: 'Assign Council',
     edit: 'Edit',
     overview: 'Overview',
     students: 'Students',

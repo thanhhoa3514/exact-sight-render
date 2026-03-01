@@ -193,7 +193,7 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
                                     disabled={sending}
                                     className="px-4 py-2 text-sm font-medium border border-border rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
                                 >
-                                    Hủy
+                                    {t.detail.cancel}
                                 </button>
                                 <button
                                     onClick={handleSend}

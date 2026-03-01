@@ -9,6 +9,7 @@ import StatusBadge from '@/components/shared/StatusBadge';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import type { DeTai } from '@/data/mock';
+import { T } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js';
 
 interface DeTaiDetailPanelProps {
   item: DeTai | null;
@@ -54,8 +55,17 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose, onSave, onAppr
 
   // Sync state when item changes
   useEffect(() => {
-    if (item) setEditedItem({ ...item });
-  }, [item]);
+    if (!isOpen) {
+      setIsEditing(false);
+      return;
+    }
+    if (item) {
+      setEditedItem({ ...item });
+      setIsEditing(false);
+    } else {
+      setEditedItem(null);
+    }
+  }, [item, isOpen]);
 
   if (!item || !editedItem) return null;
 
@@ -135,11 +145,11 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose, onSave, onAppr
                   <>
                     <Button variant="ghost" size="sm" onClick={() => { setIsEditing(false); setEditedItem({ ...item }); }} className="gap-1.5 text-muted-foreground">
                       <XCircle className="h-4 w-4" />
-                      Hủy
+                      {t.detail.cancel}
                     </Button>
                     <Button variant="default" size="sm" onClick={handleSave} className="gap-1.5">
                       <Save className="h-4 w-4" />
-                      Lưu
+                      {t.detail.save}
                     </Button>
                   </>
                 ) : (

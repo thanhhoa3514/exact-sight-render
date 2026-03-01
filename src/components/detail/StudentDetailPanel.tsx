@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import type { SinhVien, StudentStatus } from '@/data/mock';
 import { studentStatusConfig } from '@/data/mock';
 import StatusBadgeStudent from '@/components/shared/StatusBadgeStudent';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface Props {
   item: SinhVien | null;
@@ -86,10 +87,20 @@ export default function StudentDetailPanel({ item, isOpen, onClose, onSave }: Pr
   const [activeTab, setActiveTab] = useState('ho_so');
   const [isEditing, setIsEditing] = useState(false);
   const [editedItem, setEditedItem] = useState<SinhVien | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    if (item) setEditedItem({ ...item });
-  }, [item]);
+    if (!isOpen) {
+      setIsEditing(false);
+      return;
+    }
+    if (item) {
+      setEditedItem({ ...item });
+      setIsEditing(false);
+    } else {
+      setEditedItem(null);
+    }
+  }, [item, isOpen]);
 
   if (!item || !editedItem) return null;
 
@@ -135,21 +146,21 @@ export default function StudentDetailPanel({ item, isOpen, onClose, onSave }: Pr
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <Button variant="ghost" size="sm" onClick={onClose} className="gap-1.5 text-muted-foreground">
-                <X className="h-4 w-4" /> Đóng
+                <X className="h-4 w-4" /> {t.detail.close}
               </Button>
               <div className="flex items-center gap-1">
                 {isEditing ? (
                   <>
                     <Button variant="ghost" size="sm" onClick={() => { setIsEditing(false); setEditedItem({ ...item }); }} className="gap-1.5 text-muted-foreground">
-                      <XCircle className="h-4 w-4" /> Hủy
+                      <XCircle className="h-4 w-4" /> {t.detail.cancel}
                     </Button>
                     <Button variant="default" size="sm" onClick={handleSave} className="gap-1.5">
-                      <Save className="h-4 w-4" /> Lưu
+                      <Save className="h-4 w-4" /> {t.detail.save}
                     </Button>
                   </>
                 ) : (
                   <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-muted-foreground">
-                    <Edit className="h-4 w-4" /> Chỉnh sửa
+                    <Edit className="h-4 w-4" /> {t.detail.edit}
                   </Button>
                 )}
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">

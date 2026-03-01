@@ -55,7 +55,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
             onClick={() => setIsEditing(false)}
             className="flex-1 flex items-center justify-center gap-1 text-xs font-medium px-2 py-1 bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-gray-100 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
           >
-            <X className="w-3 h-3" /> Hủy
+            <X className="w-3 h-3" /> {t.detail.cancel}
           </button>
         </div>
       </motion.div>

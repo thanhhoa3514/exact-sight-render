@@ -19,6 +19,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import type { Lecturer, AssignedStudent, CouncilRole } from '../../data/lecturerData'
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface LecturerDetailPanelProps {
     lecturer: Lecturer | null;
@@ -40,6 +41,7 @@ export function LecturerDetailPanel({
     const [activeTab, setActiveTab] = useState<TabType>('thong_tin')
     const [isEditing, setIsEditing] = useState(false)
     const [editedItem, setEditedItem] = useState<Lecturer | null>(null)
+    const { t } = useTranslation();
 
     // Prevent background scrolling when panel is open
     useEffect(() => {
@@ -55,11 +57,19 @@ export function LecturerDetailPanel({
 
     // Reset tab when lecturer changes
     useEffect(() => {
+        if (!isOpen) {
+            setIsEditing(false)
+            return
+        }
+
         if (lecturer) {
             setActiveTab('thong_tin')
+            setIsEditing(false)
             setEditedItem({ ...lecturer })
+        } else {
+            setEditedItem(null)
         }
-    }, [lecturer])
+    }, [lecturer, isOpen])
 
     if (!lecturer || !editedItem) return null
 
@@ -148,7 +158,7 @@ export function LecturerDetailPanel({
                                     {isEditing ? (
                                         <>
                                             <button onClick={() => { setIsEditing(false); setEditedItem({ ...lecturer }); }} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-1">
-                                                <XCircle className="w-4 h-4" /> <span className="text-xs font-medium">Hủy</span>
+                                                <XCircle className="w-4 h-4" /> <span className="text-xs font-medium">{t.detail.cancel}</span>
                                             </button>
                                             <button onClick={handleSave} className="p-2 text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1">
                                                 <Save className="w-4 h-4" /> <span className="text-xs font-medium">Lưu</span>

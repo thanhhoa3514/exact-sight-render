@@ -98,7 +98,7 @@ export const vi = {
     pending: 'Chờ duyệt',
     completed: 'Hoàn thành',
     rejected: 'Từ chối',
-    cancelled: 'Đã hủy',
+    cancelled: 'Đã {t.detail.cancel}',
   },
   reports: {
     title: 'Báo cáo & Thống kê',
@@ -110,6 +110,9 @@ export const vi = {
   },
   detail: {
     close: 'Đóng',
+    cancel: '{t.detail.cancel}',
+    save: 'Lưu',
+    assign_council: 'Phân công HĐ',
     edit: 'Chỉnh sửa',
     overview: 'Tổng quan',
     students: 'Sinh viên',

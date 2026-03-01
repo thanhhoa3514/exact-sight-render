@@ -90,7 +90,7 @@ export const mockCouncils: Council[] = [
             { id: 'm-07', name: 'TS. Bùi Xuân G', role: 'Ủy viên', department: 'HTTT', email: 'bxg@university.edu.vn' },
         ],
         sessions: [
-            { id: 's-06', student_name: 'Đinh Tuấn Anh', mssv: 'SV20201111', thesis_title: 'ERP cho doanh nghiệp thủy sản vừa và nhỏ', time_start: '13:30', time_end: '14:15', room: 'Phòng 202-B1', status: 'Chờ diễn ra' },
+            { id: 's-06', student_name: 'Đinh Tuấn Anh', mssv: 'SV20201111', thesis_title: 'ERP cho doanh nghiệp t{t.detail.cancel} sản vừa và nhỏ', time_start: '13:30', time_end: '14:15', room: 'Phòng 202-B1', status: 'Chờ diễn ra' },
             { id: 's-07', student_name: 'Võ Thị Hồng', mssv: 'SV20202222', thesis_title: 'Phân tích dữ liệu khách hàng CRM', time_start: '14:15', time_end: '15:00', room: 'Phòng 202-B1', status: 'Chờ diễn ra' },
             { id: 's-08', student_name: 'Lý Kiến Quốc', mssv: 'SV20203333', thesis_title: 'Dự đoán rời bỏ của khách hàng viễn thông', time_start: '15:15', time_end: '16:00', room: 'Phòng 202-B1', status: 'Chờ diễn ra' },
             { id: 's-09', student_name: 'Cao Hoàng Long', mssv: 'SV20204444', thesis_title: 'Dashboard quản trị rủi ro tín dụng', time_start: '16:00', time_end: '16:45', room: 'Phòng 202-B1', status: 'Chờ diễn ra' },

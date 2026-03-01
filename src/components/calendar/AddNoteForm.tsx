@@ -51,11 +51,10 @@ export function AddNoteForm({ date, onSave, onCancel }: AddNoteFormProps) {
               key={c.key}
               onClick={() => setColor(c.key)}
               title={`Màu ${c.key}`}
-              className={`w-5 h-5 rounded-full ${c.bg} transition-all border ${c.border} ${
-                color === c.key
+              className={`w-5 h-5 rounded-full ${c.bg} transition-all border ${c.border} ${color === c.key
                   ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-gray-900 scale-110 shadow-sm'
                   : 'hover:scale-110 opacity-70 hover:opacity-100'
-              }`}
+                }`}
             />
           ))}
         </div>
@@ -65,7 +64,7 @@ export function AddNoteForm({ date, onSave, onCancel }: AddNoteFormProps) {
             onClick={onCancel}
             className="text-xs font-medium text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 px-3 py-1.5 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
           >
-            Hủy
+            {t.detail.cancel}
           </button>
           <button
             onClick={() => content.trim() && onSave(content, color)}

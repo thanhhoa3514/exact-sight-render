@@ -22,7 +22,7 @@ import type { Council } from '../../data/councilData'
 import { InitialName } from '@/helpers/InitialName'
 import getColor from '@/helpers/GetColor'
 import { GetStatusColor } from '@/helpers/GetStatusColor'
-
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface CouncilDetailPanelProps {
     council: Council | null;
@@ -41,6 +41,7 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites, on
     const [scores, setScores] = useState<Record<string, number>>({})
     const [isEditing, setIsEditing] = useState(false)
     const [editedItem, setEditedItem] = useState<Council | null>(null)
+    const { t } = useTranslation();
 
     // Reset state when council changes
     useEffect(() => {
@@ -157,7 +158,7 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites, on
                                     {isEditing ? (
                                         <>
                                             <button onClick={() => { setIsEditing(false); setEditedItem({ ...council }); }} className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-1">
-                                                <XCircle className="w-4 h-4" /> <span className="text-xs font-medium">Hủy</span>
+                                                <XCircle className="w-4 h-4" /> <span className="text-xs font-medium">{t.detail.cancel}</span>
                                             </button>
                                             <button onClick={handleSave} className="p-2 text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors flex items-center gap-1">
                                                 <Save className="w-4 h-4" /> <span className="text-xs font-medium">Lưu</span>
