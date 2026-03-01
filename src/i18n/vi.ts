@@ -110,8 +110,9 @@ export const vi = {
   },
   detail: {
     close: 'Đóng',
-    cancel: '{t.detail.cancel}',
+    cancel: 'Hủy',
     save: 'Lưu',
+    delete: 'Xóa',
     assign_council: 'Phân công HĐ',
     edit: 'Chỉnh sửa',
     overview: 'Tổng quan',
@@ -149,6 +150,16 @@ export const vi = {
     grade_fair: 'Khá',
     grade_average: 'Trung bình',
     keyboard_hint: 'ESC để đóng · ← → để điều hướng',
+  },
+  calendar: {
+    title: 'Lịch',
+    subtitle: 'Theo dõi lịch bảo vệ, deadline và ghi chú cá nhân',
+    add_note: 'Thêm ghi chú',
+    today: 'Hôm nay',
+    view_agenda: 'Lịch trình',
+    view_month: 'Tháng',
+    view_week: 'Tuần',
+    view_day: 'Ngày',
   },
   topbar: {
     search: 'Tìm kiếm...',

@@ -9,7 +9,7 @@ import StatusBadge from '@/components/shared/StatusBadge';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import type { DeTai } from '@/data/mock';
-import { T } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js';
+
 
 interface DeTaiDetailPanelProps {
   item: DeTai | null;

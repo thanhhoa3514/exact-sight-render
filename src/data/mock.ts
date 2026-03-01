@@ -42,7 +42,7 @@ export const statusConfig: Record<ThesisStatus, { label: string; variant: string
   dang_thuc_hien: { label: 'Đang thực hiện', variant: 'violet' },
   hoan_thanh: { label: 'Hoàn thành', variant: 'success' },
   bi_tu_choi: { label: 'Từ chối', variant: 'destructive' },
-  da_huy: { label: 'Đã {t.detail.cancel}', variant: 'muted' },
+  da_huy: { label: 'Đã Huỷ', variant: 'muted' },
 };
 
 export const mockDeTai: DeTai[] = [

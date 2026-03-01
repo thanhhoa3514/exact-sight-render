@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
 import { type PersonalNote } from '../../data/calendarData'
+import { useTranslation } from '@/contexts/LanguageContext';
 
 const NOTE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   yellow: { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-900 dark:text-amber-100', border: 'border-amber-200 dark:border-amber-800' },
@@ -18,6 +19,7 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(note.content)
   const colors = NOTE_COLORS[note.color] || NOTE_COLORS.gray
@@ -49,7 +51,7 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
             onClick={handleSave}
             className="flex-1 flex items-center justify-center gap-1 text-xs font-medium px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
           >
-            <Check className="w-3 h-3" /> Lưu
+            <Check className="w-3 h-3" /> {t.detail.save}
           </button>
           <button
             onClick={() => setIsEditing(false)}
@@ -76,13 +78,13 @@ export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
           onClick={() => setIsEditing(true)}
           className="flex items-center gap-1 text-xs px-2 py-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
         >
-          <Pencil className="w-3 h-3" /> Sửa
+          <Pencil className="w-3 h-3" /> {t.detail.edit}
         </button>
         <button
           onClick={onDelete}
           className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400 px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
         >
-          <Trash2 className="w-3 h-3" /> Xóa
+          <Trash2 className="w-3 h-3" /> {t.detail.delete}
         </button>
       </div>
     </motion.div>

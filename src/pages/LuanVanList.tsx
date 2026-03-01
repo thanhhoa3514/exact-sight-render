@@ -28,7 +28,7 @@ const PROGRESS_MAP: Record<string, { pct: number; label: string; colorClass: str
   dang_thuc_hien: { pct: 55, label: 'Đang TH', colorClass: 'bg-violet-500' },
   hoan_thanh: { pct: 100, label: 'Hoàn thành', colorClass: 'bg-emerald-500' },
   bi_tu_choi: { pct: 0, label: 'Từ chối', colorClass: 'bg-red-400' },
-  da_huy: { pct: 0, label: 'Đã {t.detail.cancel}', colorClass: 'bg-muted-foreground' },
+  da_huy: { pct: 0, label: 'Đã Huỷ', colorClass: 'bg-muted-foreground' },
 };
 
 function getPageNumbers(current: number, total: number): (number | '...')[] {
@@ -259,15 +259,15 @@ export default function LuanVanList() {
             key={tab}
             onClick={() => setStatusTab(tab)}
             className={`relative flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-sm transition-colors ${statusTab === tab
-                ? 'font-semibold text-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+              ? 'font-semibold text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
               }`}
           >
             {getStatusLabel(tab)}
             {(statusCounts[tab] ?? 0) > 0 && (
               <span className={`rounded-full px-1.5 text-[11px] font-medium ${statusTab === tab
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary text-muted-foreground'
+                ? 'bg-foreground text-background'
+                : 'bg-secondary text-muted-foreground'
                 }`}>
                 {statusCounts[tab]}
               </span>
@@ -455,8 +455,8 @@ export default function LuanVanList() {
                   key={page}
                   onClick={() => setCurrentPage(page as number)}
                   className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors duration-100 ${page === safePage
-                      ? 'bg-foreground text-background'
-                      : 'text-muted-foreground hover:bg-secondary'
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground hover:bg-secondary'
                     }`}
                 >
                   {page}
