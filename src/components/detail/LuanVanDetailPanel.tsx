@@ -13,6 +13,8 @@ interface LuanVanDetailPanelProps {
   item: LuanVan | null;
   isOpen: boolean;
   onClose: () => void;
+  onAssignCouncil?: (item: LuanVan) => Promise<void> | void;
+  onSave?: (item: LuanVan) => Promise<void> | void;
 }
 
 const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
@@ -65,7 +67,7 @@ function getGrade(avg: number) {
   return 'grade_average';
 }
 
-export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDetailPanelProps) {
+export default function LuanVanDetailPanel({ item, isOpen, onClose, onAssignCouncil, onSave }: LuanVanDetailPanelProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editedItem, setEditedItem] = useState<LuanVan | null>(null);
@@ -80,14 +82,33 @@ export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDet
   const avg = hasScores ? ((editedItem.diemGVHD! + editedItem.diemPhanBien! + editedItem.diemHoiDong!) / 3) : 0;
   const stars = Math.round(avg / 2);
 
-  const handleSave = () => {
-    setIsEditing(false);
-    toast.success('Đã lưu thay đổi luận văn thành công');
+  const handleSave = async () => {
+    if (!editedItem) return;
+    try {
+      if (onSave) {
+        await onSave(editedItem);
+      }
+      setIsEditing(false);
+      toast.success('Đã lưu thay đổi luận văn thành công');
+    } catch (error) {
+      console.error('Failed to save LuanVan:', error);
+      toast.error('Lỗi khi lưu thay đổi luận văn');
+    }
   };
 
-  const handleAssignCouncil = () => {
-    toast.success('Đã phân công hội đồng đánh giá');
-    setEditedItem(prev => prev ? { ...prev, trangThai: 'dang_thuc_hien' } : prev);
+  const handleAssignCouncil = async () => {
+    if (!editedItem) return;
+    const updated = { ...editedItem, trangThai: 'dang_thuc_hien' as const };
+    try {
+      if (onAssignCouncil) {
+        await onAssignCouncil(updated);
+      }
+      setEditedItem(updated);
+      toast.success('Đã phân công hội đồng đánh giá');
+    } catch (error) {
+      console.error('Failed to assign council:', error);
+      toast.error('Lỗi khi phân công hội đồng');
+    }
   };
 
   return (

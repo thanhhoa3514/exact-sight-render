@@ -17,6 +17,7 @@ interface Props {
   item: SinhVien | null;
   isOpen: boolean;
   onClose: () => void;
+  onSave?: (updatedItem: SinhVien) => Promise<void> | void;
 }
 
 const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
@@ -81,7 +82,7 @@ const activityIcons = {
   warning: AlertTriangle,
 };
 
-export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
+export default function StudentDetailPanel({ item, isOpen, onClose, onSave }: Props) {
   const [activeTab, setActiveTab] = useState('ho_so');
   const [isEditing, setIsEditing] = useState(false);
   const [editedItem, setEditedItem] = useState<SinhVien | null>(null);
@@ -92,9 +93,18 @@ export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
 
   if (!item || !editedItem) return null;
 
-  const handleSave = () => {
-    setIsEditing(false);
-    toast.success('Đã lưu thay đổi thông tin sinh viên');
+  const handleSave = async () => {
+    if (!editedItem) return;
+    try {
+      if (onSave) {
+        await onSave(editedItem);
+      }
+      setIsEditing(false);
+      toast.success('Đã lưu thay đổi thông tin sinh viên');
+    } catch (error) {
+      console.error('Failed to save student:', error);
+      toast.error('Lỗi khi lưu thay đổi thông tin sinh viên');
+    }
   };
 
   const tabs = [
@@ -185,8 +195,8 @@ export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-150 ${activeTab === tab.key
-                        ? 'border-foreground text-foreground'
-                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                      ? 'border-foreground text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
                       }`}
                   >
                     <Icon className="h-3.5 w-3.5" />
@@ -365,10 +375,10 @@ export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
                             {item.timeline.map(step => (
                               <div key={step.id} className="relative">
                                 <span className={`absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full border-2 ${step.done
-                                    ? 'border-emerald-500 bg-emerald-500 text-white'
-                                    : step.current
-                                      ? 'border-warning bg-warning text-white'
-                                      : 'border-border bg-card'
+                                  ? 'border-emerald-500 bg-emerald-500 text-white'
+                                  : step.current
+                                    ? 'border-warning bg-warning text-white'
+                                    : 'border-border bg-card'
                                   }`}>
                                   {step.done ? <CheckCircle2 className="h-3 w-3" /> : step.current ? <Clock className="h-3 w-3" /> : <Circle className="h-2 w-2 text-muted-foreground/30" />}
                                 </span>

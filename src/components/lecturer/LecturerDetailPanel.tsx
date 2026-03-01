@@ -25,6 +25,7 @@ interface LecturerDetailPanelProps {
     isOpen: boolean;
     onClose: () => void;
     onAssignStudent: (lecturer: Lecturer) => void;
+    onSave?: (updatedItem: Lecturer) => Promise<void> | void;
 }
 
 type TabType = 'thong_tin' | 'sinh_vien' | 'hoi_dong' | 'ghi_chu'
@@ -33,7 +34,8 @@ export function LecturerDetailPanel({
     lecturer,
     isOpen,
     onClose,
-    onAssignStudent
+    onAssignStudent,
+    onSave
 }: LecturerDetailPanelProps) {
     const [activeTab, setActiveTab] = useState<TabType>('thong_tin')
     const [isEditing, setIsEditing] = useState(false)
@@ -61,9 +63,18 @@ export function LecturerDetailPanel({
 
     if (!lecturer || !editedItem) return null
 
-    const handleSave = () => {
-        setIsEditing(false)
-        toast.success('Đã lưu thay đổi thông tin giảng viên')
+    const handleSave = async () => {
+        if (!editedItem) return;
+        try {
+            if (onSave) {
+                await onSave(editedItem);
+            }
+            setIsEditing(false);
+            toast.success('Đã lưu thay đổi thông tin giảng viên');
+        } catch (error) {
+            console.error('Failed to save lecturer:', error);
+            toast.error('Lỗi khi lưu thay đổi thông tin giảng viên');
+        }
     }
 
     const capacityPct = editedItem.sv_toi_da > 0

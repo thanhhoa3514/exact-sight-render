@@ -14,6 +14,9 @@ interface DeTaiDetailPanelProps {
   item: DeTai | null;
   isOpen: boolean;
   onClose: () => void;
+  onSave?: (updatedItem: DeTai) => Promise<void> | void;
+  onApprove?: (updatedItem: DeTai) => Promise<void> | void;
+  onReject?: (updatedItem: DeTai) => Promise<void> | void;
 }
 
 const backdropVariants = {
@@ -44,7 +47,7 @@ const mockDocuments = [
   { name: 'bao_cao_tien_do.docx', size: '1.1MB', date: '18/02' },
 ];
 
-export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailPanelProps) {
+export default function DeTaiDetailPanel({ item, isOpen, onClose, onSave, onApprove, onReject }: DeTaiDetailPanelProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editedItem, setEditedItem] = useState<DeTai | null>(null);
@@ -56,20 +59,48 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailP
 
   if (!item || !editedItem) return null;
 
-  const handleSave = () => {
-    setIsEditing(false);
-    toast.success('Đã lưu thay đổi đề tài thành công');
-    // Here we would typically call a prop like onSave(editedItem)
+  const handleSave = async () => {
+    if (!editedItem) return;
+    try {
+      if (onSave) {
+        await onSave(editedItem);
+      }
+      setIsEditing(false);
+      toast.success('Đã lưu thay đổi đề tài thành công');
+    } catch (error) {
+      console.error('Failed to save DeTai:', error);
+      toast.error('Lỗi khi lưu thay đổi đề tài');
+    }
   };
 
-  const handleApprove = () => {
-    toast.success('Đã duyệt đề tài');
-    setEditedItem(prev => prev ? ({ ...prev, trangThai: 'dang_thuc_hien' }) : prev);
+  const handleApprove = async () => {
+    if (!editedItem) return;
+    const updated = { ...editedItem, trangThai: 'dang_thuc_hien' as const };
+    try {
+      if (onApprove) {
+        await onApprove(updated);
+      }
+      setEditedItem(updated);
+      toast.success('Đã duyệt đề tài');
+    } catch (error) {
+      console.error('Failed to approve DeTai:', error);
+      toast.error('Lỗi khi duyệt đề tài');
+    }
   };
 
-  const handleReject = () => {
-    toast.error('Đã từ chối đề tài');
-    setEditedItem(prev => prev ? ({ ...prev, trangThai: 'bi_tu_choi' }) : prev);
+  const handleReject = async () => {
+    if (!editedItem) return;
+    const updated = { ...editedItem, trangThai: 'bi_tu_choi' as const };
+    try {
+      if (onReject) {
+        await onReject(updated);
+      }
+      setEditedItem(updated);
+      toast.success('Đã từ chối đề tài');
+    } catch (error) {
+      console.error('Failed to reject DeTai:', error);
+      toast.error('Lỗi khi từ chối đề tài');
+    }
   };
 
   const studentPct = Math.round((editedItem.soLuongSV / editedItem.soLuongSVMax) * 100);

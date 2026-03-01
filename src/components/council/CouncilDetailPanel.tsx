@@ -29,12 +29,13 @@ interface CouncilDetailPanelProps {
     isOpen: boolean;
     onClose: () => void;
     onOpenInvites: () => void;
+    onSave?: (updatedCouncil: Council) => Promise<void> | void;
 }
 
 type TabType = 'members' | 'schedule' | 'grading' | 'notes';
 
 
-export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: CouncilDetailPanelProps) {
+export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites, onSave }: CouncilDetailPanelProps) {
     const [activeTab, setActiveTab] = useState<TabType>('members')
     const [selectedSessionForGrading, setSelectedSessionForGrading] = useState<string | null>(null)
     const [scores, setScores] = useState<Record<string, number>>({})
@@ -55,9 +56,19 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
         setScores({})
     }, [selectedSessionForGrading])
 
-    const handleSave = () => {
-        setIsEditing(false)
-        toast.success('Đã lưu thay đổi thông tin hội đồng')
+    const handleSave = async () => {
+        if (!editedItem) return;
+
+        try {
+            if (onSave) {
+                await onSave(editedItem);
+            }
+            setIsEditing(false);
+            toast.success('Đã lưu thay đổi thông tin hội đồng');
+        } catch (error) {
+            console.error("Failed to save council edits:", error);
+            toast.error('Lỗi khi lưu thay đổi thông tin hội đồng');
+        }
     }
 
     const handleScoreChange = (criterionId: string, maxScore: number, value: string) => {
