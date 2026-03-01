@@ -182,7 +182,7 @@ export default function Sidebar({ onRestartTour, collapsed, onCollapsedChange }:
       {/* Collapse toggle */}
       <button
         onClick={() => onCollapsedChange(!collapsed)}
-        className="absolute -right-3 top-7 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-card transition-colors hover:text-foreground"
+        className="absolute -right-3 top-7 z-40 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-card transition-colors hover:text-foreground"
       >
         {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
       </button>
