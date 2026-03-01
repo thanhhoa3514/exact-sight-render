@@ -75,7 +75,12 @@ export default function NotificationPanel() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-lg text-muted-foreground hover:bg-secondary">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={lang === 'vi' ? 'Mở thông báo' : 'Open notifications'}
+          className="relative h-9 w-9 rounded-lg text-muted-foreground hover:bg-secondary"
+        >
           <Bell className="h-4 w-4" />
           <AnimatePresence>
             {unreadCount > 0 && (

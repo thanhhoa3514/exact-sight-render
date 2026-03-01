@@ -20,20 +20,20 @@ export default function Sidebar({ onRestartTour, collapsed, onCollapsedChange }:
   const { t } = useTranslation();
 
   const navItems = [
-    { label: t.nav.dashboard, icon: LayoutDashboard, path: '/', id: 'nav-dashboard' },
-    { label: t.nav.topics, icon: FileText, path: '/de-tai', id: 'nav-de-tai' },
-    { label: t.nav.theses, icon: BookOpen, path: '/luan-van', id: 'nav-luan-van' },
-    { label: t.nav.students, icon: Users, path: '/sinh-vien', id: 'nav-sinh-vien' },
-    { label: t.nav.lecturers, icon: GraduationCap, path: '/giang-vien' },
-    { label: t.nav.council, icon: Shield, path: '/hoi-dong' },
-    { label: t.nav.schedule, icon: Calendar, path: '/lich-bao-ve' },
-    { label: t.nav.progress, icon: TrendingUp, path: '/tien-do' },
-    { label: t.nav.reports, icon: BarChart3, path: '/bao-cao' },
+    { label: t.nav.dashboard, icon: LayoutDashboard, path: '/admin', id: 'nav-dashboard' },
+    { label: t.nav.topics, icon: FileText, path: '/admin/de-tai', id: 'nav-de-tai' },
+    { label: t.nav.theses, icon: BookOpen, path: '/admin/luan-van', id: 'nav-luan-van' },
+    { label: t.nav.students, icon: Users, path: '/admin/sinh-vien', id: 'nav-sinh-vien' },
+    { label: t.nav.lecturers, icon: GraduationCap, path: '/admin/giang-vien' },
+    { label: t.nav.council, icon: Shield, path: '/admin/hoi-dong' },
+    { label: t.nav.schedule, icon: Calendar, path: '/admin/lich-bao-ve' },
+    { label: t.nav.progress, icon: TrendingUp, path: '/admin/tien-do' },
+    { label: t.nav.reports, icon: BarChart3, path: '/admin/bao-cao' },
   ];
 
   const bottomItems = [
-    { label: t.nav.settings, icon: Settings, path: '/cai-dat' },
-    { label: t.nav.notifications, icon: Bell, path: '/thong-bao', badge: 3 },
+    { label: t.nav.settings, icon: Settings, path: '/admin/cai-dat' },
+    { label: t.nav.notifications, icon: Bell, path: '/admin/thong-bao', badge: 3 },
   ];
 
   return (
@@ -181,7 +181,10 @@ export default function Sidebar({ onRestartTour, collapsed, onCollapsedChange }:
 
       {/* Collapse toggle */}
       <button
+        type="button"
         onClick={() => onCollapsedChange(!collapsed)}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         className="absolute -right-3 top-7 z-40 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-card transition-colors hover:text-foreground"
       >
         {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
