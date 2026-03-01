@@ -9,6 +9,7 @@ import { NotificationProvider } from "@/contexts/NotificationContext"; // Added 
 import { ToastStack } from "@/components/layout/ToastStack";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Dashboard from "@/pages/Dashboard";
+import PortalSelection from "@/pages/PortalSelection";
 import DeTaiList from "@/pages/DeTaiList";
 import LuanVanList from "@/pages/LuanVanList";
 import SinhVienList from "@/pages/SinhVienList";
@@ -18,6 +19,11 @@ import NotFound from "./pages/NotFound";
 import { LichBaoVe } from "@/pages/LichBaoVe";
 import { GiangVien } from "@/pages/GiangVien";
 import { HoiDong } from "@/pages/HoiDong";
+
+import StudentLayout from "@/components/layout/StudentLayout";
+import StudentDashboard from "@/pages/student/StudentDashboard";
+import StudentDocuments from "@/pages/student/StudentDocuments";
+import StudentMessages from "@/pages/student/StudentMessages";
 
 const queryClient = new QueryClient();
 
@@ -31,17 +37,28 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
+                <Route path="/" element={<PortalSelection />} />
                 <Route path="/login" element={<Login />} />
-                <Route element={<DashboardLayout />}>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/de-tai" element={<DeTaiList />} />
-                  <Route path="/luan-van" element={<LuanVanList />} />
-                  <Route path="/sinh-vien" element={<SinhVienList />} />
-                  <Route path="/bao-cao" element={<BaoCao />} />
-                  <Route path="/lich-bao-ve" element={<LichBaoVe />} />
-                  <Route path="/giang-vien" element={<GiangVien />} />
-                  <Route path="/hoi-dong" element={<HoiDong />} />
+
+                {/* Admin Portal Routes */}
+                <Route path="/admin" element={<DashboardLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="de-tai" element={<DeTaiList />} />
+                  <Route path="luan-van" element={<LuanVanList />} />
+                  <Route path="sinh-vien" element={<SinhVienList />} />
+                  <Route path="bao-cao" element={<BaoCao />} />
+                  <Route path="lich-bao-ve" element={<LichBaoVe />} />
+                  <Route path="giang-vien" element={<GiangVien />} />
+                  <Route path="hoi-dong" element={<HoiDong />} />
                 </Route>
+
+                {/* Student Portal Routes */}
+                <Route path="/student" element={<StudentLayout />}>
+                  <Route index element={<StudentDashboard />} />
+                  <Route path="documents" element={<StudentDocuments />} />
+                  <Route path="messages" element={<StudentMessages />} />
+                </Route>
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <ToastStack />
