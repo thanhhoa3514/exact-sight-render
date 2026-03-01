@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { NOTIFICATION_TYPES_CONFIG } from '@/data/notificationData';
@@ -15,9 +15,40 @@ interface ToastItemProps {
 export function ToastItem({ toast, onDismiss }: ToastItemProps) {
     const [isPaused, setIsPaused] = useState(false);
     const navigate = useNavigate();
+    const controls = useAnimation();
+
     const [timeAgo, setTimeAgo] = useState(() =>
         formatDistanceToNowStrict(toast.createdAt, { addSuffix: true, locale: vi })
     );
+
+    useEffect(() => {
+        // Start the countdown on mount
+        controls.start({
+            scaleX: 0,
+            transition: { duration: 5, ease: 'linear' }
+        });
+    }, [controls]);
+
+    useEffect(() => {
+        if (isPaused) {
+            // Check for newer framer-motion play/pause API, fallback to stop/start
+            const ctrl = controls as unknown as { pause?: () => void };
+            if (typeof ctrl.pause === 'function') {
+                ctrl.pause();
+            } else {
+                controls.stop();
+            }
+        } else {
+            const ctrl = controls as unknown as { play?: () => void };
+            if (typeof ctrl.play === 'function') {
+                ctrl.play();
+            } else {
+                // Notice: starting again will animate the rest but won't perfectly track time unless we do it manually,
+                // but this supports older framer-motion versions safely.
+                controls.start({ scaleX: 0, transition: { duration: 5, ease: 'linear' } });
+            }
+        }
+    }, [isPaused, controls]);
 
     // Update "time ago" string every minute
     useEffect(() => {
@@ -86,9 +117,7 @@ export function ToastItem({ toast, onDismiss }: ToastItemProps) {
             <motion.div
                 className={`h-0.5 ${config.dot.replace('bg-', 'bg-').replace('-400', '-500')} w-full origin-left`}
                 initial={{ scaleX: 1 }}
-                animate={{ scaleX: 0 }}
-                transition={{ duration: 5, ease: 'linear' }}
-                style={{ animationPlayState: isPaused ? 'paused' : 'running' }}
+                animate={controls}
                 onAnimationComplete={() => onDismiss(toast.toastId)}
             />
         </div>
