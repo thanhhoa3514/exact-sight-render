@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface AddNoteFormProps {
   date: Date
@@ -19,6 +20,7 @@ const NOTE_COLORS = [
 export function AddNoteForm({ date, onSave, onCancel }: AddNoteFormProps) {
   const [content, setContent] = useState('')
   const [color, setColor] = useState('yellow')
+  const { t } = useTranslation();
 
   return (
     <motion.div
@@ -51,11 +53,10 @@ export function AddNoteForm({ date, onSave, onCancel }: AddNoteFormProps) {
               key={c.key}
               onClick={() => setColor(c.key)}
               title={`Màu ${c.key}`}
-              className={`w-5 h-5 rounded-full ${c.bg} transition-all border ${c.border} ${
-                color === c.key
-                  ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-gray-900 scale-110 shadow-sm'
-                  : 'hover:scale-110 opacity-70 hover:opacity-100'
-              }`}
+              className={`w-5 h-5 rounded-full ${c.bg} transition-all border ${c.border} ${color === c.key
+                ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-gray-900 scale-110 shadow-sm'
+                : 'hover:scale-110 opacity-70 hover:opacity-100'
+                }`}
             />
           ))}
         </div>
@@ -65,14 +66,14 @@ export function AddNoteForm({ date, onSave, onCancel }: AddNoteFormProps) {
             onClick={onCancel}
             className="text-xs font-medium text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 px-3 py-1.5 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
           >
-            Hủy
+            {t.detail.cancel}
           </button>
           <button
             onClick={() => content.trim() && onSave(content, color)}
             disabled={!content.trim()}
             className="flex items-center gap-1.5 text-xs font-bold bg-blue-600 text-white px-4 py-1.5 rounded-lg transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 hover:shadow active:scale-[0.98]"
           >
-            <Check className="w-3.5 h-3.5" /> Lưu
+            <Check className="w-3.5 h-3.5" /> {t.detail.save}
           </button>
         </div>
       </div>

@@ -1,20 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Edit, MoreHorizontal, User, FileText, TrendingUp, Clock,
   Mail, ChevronRight, BookOpen, AlertTriangle, CheckCircle2, Circle,
-  MessageSquare, Paperclip,
+  MessageSquare, Paperclip, Save, XCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { toast } from 'sonner';
 import type { SinhVien, StudentStatus } from '@/data/mock';
 import { studentStatusConfig } from '@/data/mock';
 import StatusBadgeStudent from '@/components/shared/StatusBadgeStudent';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface Props {
   item: SinhVien | null;
   isOpen: boolean;
   onClose: () => void;
+  onSave?: (updatedItem: SinhVien) => Promise<void> | void;
 }
 
 const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
@@ -79,10 +83,40 @@ const activityIcons = {
   warning: AlertTriangle,
 };
 
-export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
+export default function StudentDetailPanel({ item, isOpen, onClose, onSave }: Props) {
   const [activeTab, setActiveTab] = useState('ho_so');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedItem, setEditedItem] = useState<SinhVien | null>(null);
+  const { t } = useTranslation();
 
-  if (!item) return null;
+  useEffect(() => {
+    if (!isOpen) {
+      setIsEditing(false);
+      return;
+    }
+    if (item) {
+      setEditedItem({ ...item });
+      setIsEditing(false);
+    } else {
+      setEditedItem(null);
+    }
+  }, [item, isOpen]);
+
+  if (!item || !editedItem) return null;
+
+  const handleSave = async () => {
+    if (!editedItem) return;
+    try {
+      if (onSave) {
+        await onSave(editedItem);
+      }
+      setIsEditing(false);
+      toast.success('Đã lưu thay đổi thông tin sinh viên');
+    } catch (error) {
+      console.error('Failed to save student:', error);
+      toast.error('Lỗi khi lưu thay đổi thông tin sinh viên');
+    }
+  };
 
   const tabs = [
     { key: 'ho_so', label: 'Hồ sơ', icon: User },
@@ -112,12 +146,23 @@ export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <Button variant="ghost" size="sm" onClick={onClose} className="gap-1.5 text-muted-foreground">
-                <X className="h-4 w-4" /> Đóng
+                <X className="h-4 w-4" /> {t.detail.close}
               </Button>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
-                  <Edit className="h-4 w-4" /> Chỉnh sửa
-                </Button>
+                {isEditing ? (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={() => { setIsEditing(false); setEditedItem({ ...item }); }} className="gap-1.5 text-muted-foreground">
+                      <XCircle className="h-4 w-4" /> {t.detail.cancel}
+                    </Button>
+                    <Button variant="default" size="sm" onClick={handleSave} className="gap-1.5">
+                      <Save className="h-4 w-4" /> {t.detail.save}
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-muted-foreground">
+                    <Edit className="h-4 w-4" /> {t.detail.edit}
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -126,14 +171,29 @@ export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
 
             {/* Hero */}
             <div className="flex flex-col items-center border-b border-border px-5 py-5">
-              <div className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold ${getAvatarColor(item.id)}`}>
-                {getInitials(item.name)}
+              <div className={`flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold ${getAvatarColor(editedItem.id)}`}>
+                {getInitials(editedItem.name)}
               </div>
-              <h2 className="mt-3 font-display text-lg font-bold text-foreground">{item.name}</h2>
-              <p className="mt-0.5 font-mono text-xs text-muted-foreground">{item.mssv} · {item.khoa_hoc}</p>
-              <p className="text-sm text-muted-foreground">{item.chuyen_nganh}</p>
+              {isEditing ? (
+                <Input value={editedItem.name} onChange={(e) => setEditedItem(prev => prev ? { ...prev, name: e.target.value } : prev)} className="mt-3 text-center font-display text-lg font-bold h-9 w-64" />
+              ) : (
+                <h2 className="mt-3 font-display text-lg font-bold text-foreground">{editedItem.name}</h2>
+              )}
+              {isEditing ? (
+                <div className="mt-1 flex gap-2">
+                  <Input value={editedItem.mssv} onChange={(e) => setEditedItem(prev => prev ? { ...prev, mssv: e.target.value } : prev)} className="h-7 w-24 text-xs font-mono text-center" />
+                  <Input value={editedItem.khoa_hoc} onChange={(e) => setEditedItem(prev => prev ? { ...prev, khoa_hoc: e.target.value } : prev)} className="h-7 w-20 text-xs font-mono text-center" />
+                </div>
+              ) : (
+                <p className="mt-0.5 font-mono text-xs text-muted-foreground">{editedItem.mssv} · {editedItem.khoa_hoc}</p>
+              )}
+              {isEditing ? (
+                <Input value={editedItem.chuyen_nganh} onChange={(e) => setEditedItem(prev => prev ? { ...prev, chuyen_nganh: e.target.value } : prev)} className="mt-1 h-7 text-xs w-48 text-center" />
+              ) : (
+                <p className="text-sm text-muted-foreground">{editedItem.chuyen_nganh}</p>
+              )}
               <div className="mt-2">
-                <StatusBadgeStudent status={item.status} />
+                <StatusBadgeStudent status={editedItem.status} />
               </div>
             </div>
 
@@ -145,11 +205,10 @@ export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-150 ${
-                      activeTab === tab.key
-                        ? 'border-foreground text-foreground'
-                        : 'border-transparent text-muted-foreground hover:text-foreground'
-                    }`}
+                    className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-150 ${activeTab === tab.key
+                      ? 'border-foreground text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                      }`}
                   >
                     <Icon className="h-3.5 w-3.5" />
                     {tab.label}
@@ -173,10 +232,33 @@ export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
                         <div>
                           <SectionTitle>Thông tin cá nhân</SectionTitle>
                           <div className="divide-y divide-border rounded-lg border border-border px-3">
-                            <InfoRow label="Ngày sinh" value={item.ngay_sinh} />
-                            <InfoRow label="Giới tính" value={item.gioi_tinh} />
-                            <InfoRow label="Email" value={item.email} />
-                            <InfoRow label="SĐT" value={item.sdt} />
+                            {isEditing ? (
+                              <div className="space-y-2 py-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">Ngày sinh</span>
+                                  <Input value={editedItem.ngay_sinh} onChange={(e) => setEditedItem(prev => prev ? { ...prev, ngay_sinh: e.target.value } : prev)} className="w-32 h-8 text-sm" />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">Giới tính</span>
+                                  <Input value={editedItem.gioi_tinh} onChange={(e) => setEditedItem(prev => prev ? { ...prev, gioi_tinh: e.target.value } : prev)} className="w-24 h-8 text-sm" />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">Email</span>
+                                  <Input value={editedItem.email} onChange={(e) => setEditedItem(prev => prev ? { ...prev, email: e.target.value } : prev)} className="w-48 h-8 text-sm" />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">SĐT</span>
+                                  <Input value={editedItem.sdt} onChange={(e) => setEditedItem(prev => prev ? { ...prev, sdt: e.target.value } : prev)} className="w-32 h-8 text-sm" />
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <InfoRow label="Ngày sinh" value={editedItem.ngay_sinh} />
+                                <InfoRow label="Giới tính" value={editedItem.gioi_tinh} />
+                                <InfoRow label="Email" value={editedItem.email} />
+                                <InfoRow label="SĐT" value={editedItem.sdt} />
+                              </>
+                            )}
                           </div>
                         </div>
                         <div>
@@ -303,13 +385,12 @@ export default function StudentDetailPanel({ item, isOpen, onClose }: Props) {
                           <div className="relative ml-3 border-l-2 border-border pl-6 space-y-5">
                             {item.timeline.map(step => (
                               <div key={step.id} className="relative">
-                                <span className={`absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                                  step.done
-                                    ? 'border-emerald-500 bg-emerald-500 text-white'
-                                    : step.current
+                                <span className={`absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full border-2 ${step.done
+                                  ? 'border-emerald-500 bg-emerald-500 text-white'
+                                  : step.current
                                     ? 'border-warning bg-warning text-white'
                                     : 'border-border bg-card'
-                                }`}>
+                                  }`}>
                                   {step.done ? <CheckCircle2 className="h-3 w-3" /> : step.current ? <Clock className="h-3 w-3" /> : <Circle className="h-2 w-2 text-muted-foreground/30" />}
                                 </span>
                                 <p className={`text-sm font-medium ${step.done ? 'text-foreground' : step.current ? 'text-warning' : 'text-muted-foreground'}`}>
