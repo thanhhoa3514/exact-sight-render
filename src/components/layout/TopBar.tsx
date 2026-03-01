@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search, Bell, Sun, Moon } from 'lucide-react';
+import { Search, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CommandPalette } from '@/components/shared/CommandPalette';
+import NotificationPanel from '@/components/layout/NotificationPanel';
+import { useNotifications } from '@/contexts/NotificationContext';
+import { randomMockNotification } from '@/data/notificationData';
 
 const pathLabelsMap: Record<string, { vi: string; en: string }> = {
   '/': { vi: 'Tổng quan', en: 'Dashboard' },
@@ -23,6 +26,7 @@ export default function TopBar() {
   const location = useLocation();
   const { theme, setTheme } = useTheme();
   const { lang, setLang, t } = useTranslation();
+  const { push } = useNotifications();
   const pathLabel = pathLabelsMap[location.pathname];
   const currentLabel = pathLabel ? pathLabel[lang] : 'Page';
   const [commandOpen, setCommandOpen] = useState(false);
@@ -102,18 +106,18 @@ export default function TopBar() {
           </AnimatePresence>
         </Button>
 
-        {/* Notification Bell */}
-        <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-lg text-muted-foreground hover:bg-secondary">
-          <Bell className="h-4 w-4" />
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring' as const, damping: 15, stiffness: 300 }}
-            className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground"
-          >
-            3
-          </motion.span>
+        {/* --- DEV ONLY --- */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-2 h-8 hidden sm:flex border-dashed text-xs text-muted-foreground"
+          onClick={() => push(randomMockNotification())}
+        >
+          Push Test Toast
         </Button>
+
+        {/* Notification Panel */}
+        <NotificationPanel />
 
         {/* Avatar */}
         <div className="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-foreground">
