@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { NotificationProvider } from "@/contexts/NotificationContext"; // Added import
+import { ToastStack } from "@/components/layout/ToastStack";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Dashboard from "@/pages/Dashboard";
 import DeTaiList from "@/pages/DeTaiList";
@@ -23,26 +25,29 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="app-theme">
       <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route element={<DashboardLayout />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/de-tai" element={<DeTaiList />} />
-                <Route path="/luan-van" element={<LuanVanList />} />
-                <Route path="/sinh-vien" element={<SinhVienList />} />
-                <Route path="/bao-cao" element={<BaoCao />} />
-                <Route path="/lich-bao-ve" element={<LichBaoVe />} />
-                <Route path="/giang-vien" element={<GiangVien />} />
-                <Route path="/hoi-dong" element={<HoiDong />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <NotificationProvider> {/* Added NotificationProvider */}
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route element={<DashboardLayout />}>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/de-tai" element={<DeTaiList />} />
+                  <Route path="/luan-van" element={<LuanVanList />} />
+                  <Route path="/sinh-vien" element={<SinhVienList />} />
+                  <Route path="/bao-cao" element={<BaoCao />} />
+                  <Route path="/lich-bao-ve" element={<LichBaoVe />} />
+                  <Route path="/giang-vien" element={<GiangVien />} />
+                  <Route path="/hoi-dong" element={<HoiDong />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <ToastStack />
+            </BrowserRouter>
+          </TooltipProvider>
+        </NotificationProvider> {/* Closed NotificationProvider */}
       </LanguageProvider>
     </ThemeProvider>
   </QueryClientProvider>
