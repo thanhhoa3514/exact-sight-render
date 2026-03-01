@@ -5,63 +5,72 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mockNotifications, type Notification, type NotificationType } from '@/data/notificationData';
+import { NOTIFICATION_TYPES_CONFIG } from '@/data/notificationData';
+import type { Notification } from '@/data/notificationData';
+import { useNotifications } from '@/contexts/NotificationContext';
+import { isToday, isYesterday, isThisWeek, formatDistanceToNowStrict } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
+
 import { useTranslation } from '@/contexts/LanguageContext';
 
-const typeConfig: Record<NotificationType, { icon: typeof Bell; color: string; bg: string }> = {
-  submission: { icon: FileText, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/40' },
-  approval: { icon: CheckCircle2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/40' },
-  rejection: { icon: XCircle, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-100 dark:bg-red-900/40' },
-  defense: { icon: Calendar, color: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-100 dark:bg-violet-900/40' },
-  deadline: { icon: Clock, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/40' },
-  comment: { icon: MessageSquare, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-100 dark:bg-cyan-900/40' },
-  system: { icon: Settings, color: 'text-muted-foreground', bg: 'bg-secondary' },
-};
+function NotificationItem({ notification, onRead, closePanel }: { notification: Notification; onRead: (id: string) => void; closePanel: () => void }) {
+  const config = NOTIFICATION_TYPES_CONFIG[notification.type] || NOTIFICATION_TYPES_CONFIG.system;
+  const navigate = useNavigate();
 
-function NotificationItem({ notification, onRead }: { notification: Notification; onRead: (id: string) => void }) {
-  const config = typeConfig[notification.type];
-  const Icon = config.icon;
+  const handleClick = () => {
+    if (!notification.read) onRead(notification.id);
+    if (notification.ctaHref) {
+      navigate(notification.ctaHref);
+    }
+    closePanel();
+  };
+
+  const timeAgo = formatDistanceToNowStrict(notification.createdAt, { addSuffix: true, locale: vi });
 
   return (
     <button
-      onClick={() => onRead(notification.id)}
-      className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary/60
-        ${!notification.read ? 'bg-primary/[0.03] dark:bg-primary/[0.06]' : ''}`}
+      onClick={handleClick}
+      className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50
+        ${!notification.read ? config.bgAccent : 'bg-transparent'}`}
     >
-      <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${config.bg}`}>
-        <Icon className={`h-4 w-4 ${config.color}`} />
-      </div>
+      <div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${!notification.read ? config.dot : 'bg-zinc-300 dark:bg-zinc-600'}`} />
+
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-foreground truncate">{notification.title}</span>
-          {!notification.read && (
-            <span className="h-2 w-2 shrink-0 rounded-full bg-info" />
-          )}
+        <div className="flex items-center justify-between">
+          <span className={`text-[14px] truncate ${!notification.read ? 'font-semibold text-zinc-900 dark:text-zinc-100' : 'font-medium text-zinc-700 dark:text-zinc-300 opacity-80'}`}>
+            {notification.title}
+          </span>
+          <span className="shrink-0 text-[12px] text-zinc-400 font-normal">{timeAgo}</span>
         </div>
-        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2 leading-relaxed">{notification.message}</p>
-        <span className="mt-1 block text-[11px] text-muted-foreground/70">{notification.time}</span>
+        <p className={`mt-0.5 text-[13px] line-clamp-1 leading-relaxed ${!notification.read ? 'text-zinc-600 dark:text-zinc-400' : 'text-zinc-500 dark:text-zinc-500'}`}>
+          {notification.body}
+        </p>
       </div>
-      <ChevronRight className="mt-1 h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />
     </button>
   );
 }
 
 export default function NotificationPanel() {
   const { lang } = useTranslation();
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const [open, setOpen] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const handleRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  // Grouping function
+  const groupNotifications = (list: Notification[]) => {
+    const groups: { label: string; items: Notification[] }[] = [
+      { label: lang === 'vi' ? 'Hôm nay' : 'Today', items: list.filter(n => isToday(n.createdAt)) },
+      { label: lang === 'vi' ? 'Hôm qua' : 'Yesterday', items: list.filter(n => isYesterday(n.createdAt)) },
+      { label: lang === 'vi' ? 'Tuần này' : 'This week', items: list.filter(n => isThisWeek(n.createdAt) && !isToday(n.createdAt) && !isYesterday(n.createdAt)) },
+      { label: lang === 'vi' ? 'Cũ hơn' : 'Older', items: list.filter(n => !isThisWeek(n.createdAt)) },
+    ];
+    return groups.filter(g => g.items.length > 0);
   };
 
-  const handleMarkAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  };
-
-  const unreadNotifications = notifications.filter(n => !n.read);
+  const allGroups = groupNotifications(notifications);
+  const unreadGroups = groupNotifications(notifications.filter(n => !n.read));
+  // Stub for 'Mine': filtering by some condition (for now just returning all)
+  const mineGroups = groupNotifications(notifications);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -73,11 +82,12 @@ export default function NotificationPanel() {
               <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
+                // simple pulse on unread count change can be added
                 exit={{ scale: 0 }}
                 transition={{ type: 'spring', damping: 15, stiffness: 300 }}
-                className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground"
+                className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white px-1"
               >
-                {unreadCount}
+                {unreadCount > 9 ? '9+' : unreadCount}
               </motion.span>
             )}
           </AnimatePresence>
@@ -98,11 +108,11 @@ export default function NotificationPanel() {
           </div>
           {unreadCount > 0 && (
             <button
-              onClick={handleMarkAllRead}
-              className="flex items-center gap-1 text-xs font-medium text-info hover:text-info/80 transition-colors"
+              onClick={markAllRead}
+              className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
             >
               <Check className="h-3 w-3" />
-              {lang === 'vi' ? 'Đọc tất cả' : 'Mark all read'}
+              {lang === 'vi' ? 'Đánh dấu tất cả đã đọc' : 'Mark all read'}
             </button>
           )}
         </div>
@@ -110,65 +120,92 @@ export default function NotificationPanel() {
         {/* Tabs */}
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent px-4 h-10">
-            <TabsTrigger value="all" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+            <TabsTrigger value="all" className="text-[13px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 pb-2 pt-2">
               {lang === 'vi' ? 'Tất cả' : 'All'}
             </TabsTrigger>
-            <TabsTrigger value="unread" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+            <TabsTrigger value="unread" className="text-[13px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 pb-2 pt-2">
               {lang === 'vi' ? 'Chưa đọc' : 'Unread'}
               {unreadCount > 0 && (
-                <span className="ml-1.5 text-[10px] text-muted-foreground">({unreadCount})</span>
+                <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-medium">{unreadCount}</span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="mine" className="text-[13px] rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 pb-2 pt-2">
+              {lang === 'vi' ? 'Của tôi' : 'Mine'}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-0">
-            <ScrollArea className="h-[400px]">
-              <div className="divide-y divide-border">
-                {notifications.map((n, i) => (
-                  <motion.div
-                    key={n.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                  >
-                    <NotificationItem notification={n} onRead={handleRead} />
-                  </motion.div>
+            <ScrollArea className="h-[432px]">
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800/60 pb-12">
+                {allGroups.map((group) => (
+                  <div key={group.label}>
+                    <div className="sticky top-0 z-10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur px-4 py-2 text-[12px] font-medium text-zinc-500">
+                      {group.label}
+                    </div>
+                    {group.items.map((n, i) => (
+                      <NotificationItem key={n.id} notification={n} onRead={markRead} closePanel={() => setOpen(false)} />
+                    ))}
+                  </div>
                 ))}
               </div>
             </ScrollArea>
           </TabsContent>
 
           <TabsContent value="unread" className="mt-0">
-            <ScrollArea className="h-[400px]">
-              {unreadNotifications.length > 0 ? (
-                <div className="divide-y divide-border">
-                  {unreadNotifications.map((n, i) => (
-                    <motion.div
-                      key={n.id}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.03 }}
-                    >
-                      <NotificationItem notification={n} onRead={handleRead} />
-                    </motion.div>
+            <ScrollArea className="h-[432px]">
+              {unreadGroups.length > 0 ? (
+                <div className="divide-y divide-zinc-100 dark:divide-zinc-800/60 pb-12">
+                  {unreadGroups.map((group) => (
+                    <div key={group.label}>
+                      <div className="sticky top-0 z-10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur px-4 py-2 text-[12px] font-medium text-zinc-500">
+                        {group.label}
+                      </div>
+                      {group.items.map((n, i) => (
+                        <NotificationItem key={n.id} notification={n} onRead={markRead} closePanel={() => setOpen(false)} />
+                      ))}
+                    </div>
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="flex flex-col items-center justify-center h-full min-h-[250px] text-center px-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary mb-3">
-                    <Check className="h-5 w-5 text-muted-foreground" />
+                    <Bell className="h-5 w-5 text-muted-foreground opacity-50" />
                   </div>
                   <p className="text-sm font-medium text-foreground">
-                    {lang === 'vi' ? 'Đã đọc hết!' : 'All caught up!'}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {lang === 'vi' ? 'Không có thông báo chưa đọc' : 'No unread notifications'}
+                    {lang === 'vi' ? 'Không có thông báo mới' : 'No new notifications'}
                   </p>
                 </div>
               )}
             </ScrollArea>
           </TabsContent>
+
+          <TabsContent value="mine" className="mt-0">
+            <ScrollArea className="h-[432px]">
+              <div className="divide-y divide-zinc-100 dark:divide-zinc-800/60 pb-12">
+                {mineGroups.map((group) => (
+                  <div key={group.label}>
+                    <div className="sticky top-0 z-10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur px-4 py-2 text-[12px] font-medium text-zinc-500">
+                      {group.label}
+                    </div>
+                    {group.items.map((n, i) => (
+                      <NotificationItem key={n.id} notification={n} onRead={markRead} closePanel={() => setOpen(false)} />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
         </Tabs>
+
+        {/* Footer Link */}
+        <div className="absolute bottom-0 w-full left-0 border-t border-border bg-white dark:bg-zinc-900 p-2 z-20">
+          <button
+            onClick={() => { setOpen(false); /* navigate('/notifications') */ }}
+            className="w-full py-1.5 text-[13px] font-medium text-center text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {lang === 'vi' ? 'Xem tất cả thông báo →' : 'View all notifications →'}
+          </button>
+        </div>
       </PopoverContent>
     </Popover>
   );

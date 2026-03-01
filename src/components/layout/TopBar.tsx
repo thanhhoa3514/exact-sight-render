@@ -7,6 +7,8 @@ import { useTranslation } from '@/contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CommandPalette } from '@/components/shared/CommandPalette';
 import NotificationPanel from '@/components/layout/NotificationPanel';
+import { useNotifications } from '@/contexts/NotificationContext';
+import { randomMockNotification } from '@/data/notificationData';
 
 const pathLabelsMap: Record<string, { vi: string; en: string }> = {
   '/': { vi: 'Tổng quan', en: 'Dashboard' },
@@ -24,6 +26,7 @@ export default function TopBar() {
   const location = useLocation();
   const { theme, setTheme } = useTheme();
   const { lang, setLang, t } = useTranslation();
+  const { push } = useNotifications();
   const pathLabel = pathLabelsMap[location.pathname];
   const currentLabel = pathLabel ? pathLabel[lang] : 'Page';
   const [commandOpen, setCommandOpen] = useState(false);
@@ -101,6 +104,16 @@ export default function TopBar() {
               </motion.div>
             )}
           </AnimatePresence>
+        </Button>
+
+        {/* --- DEV ONLY --- */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-2 h-8 hidden sm:flex border-dashed text-xs text-muted-foreground"
+          onClick={() => push(randomMockNotification())}
+        >
+          Push Test Toast
         </Button>
 
         {/* Notification Panel */}
