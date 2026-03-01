@@ -11,39 +11,66 @@ import {
     AlertCircle,
     Mail,
     FileText,
-    Star
+    Star,
+    Edit,
+    Save,
+    XCircle
 } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 import type { Council } from '../../data/councilData'
 import { InitialName } from '@/helpers/InitialName'
 import getColor from '@/helpers/GetColor'
 import { GetStatusColor } from '@/helpers/GetStatusColor'
-
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface CouncilDetailPanelProps {
     council: Council | null;
     isOpen: boolean;
     onClose: () => void;
     onOpenInvites: () => void;
+    onSave?: (updatedCouncil: Council) => Promise<void> | void;
 }
 
 type TabType = 'members' | 'schedule' | 'grading' | 'notes';
 
 
-export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: CouncilDetailPanelProps) {
+export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites, onSave }: CouncilDetailPanelProps) {
     const [activeTab, setActiveTab] = useState<TabType>('members')
     const [selectedSessionForGrading, setSelectedSessionForGrading] = useState<string | null>(null)
     const [scores, setScores] = useState<Record<string, number>>({})
+    const [isEditing, setIsEditing] = useState(false)
+    const [editedItem, setEditedItem] = useState<Council | null>(null)
+    const { t } = useTranslation();
 
     // Reset state when council changes
     useEffect(() => {
         setActiveTab('members')
         setSelectedSessionForGrading(null)
-    }, [council?.id])
+        if (council) {
+            setEditedItem({ ...council })
+        }
+    }, [council])
 
     // Reset scores when session changes
     useEffect(() => {
         setScores({})
     }, [selectedSessionForGrading])
+
+    const handleSave = async () => {
+        if (!editedItem) return;
+
+        try {
+            if (onSave) {
+                await onSave(editedItem);
+            }
+            setIsEditing(false);
+            toast.success('Đã lưu thay đổi thông tin hội đồng');
+        } catch (error) {
+            console.error("Failed to save council edits:", error);
+            toast.error('Lỗi khi lưu thay đổi thông tin hội đồng');
+        }
+    }
 
     const handleScoreChange = (criterionId: string, maxScore: number, value: string) => {
         if (value === '') {
@@ -66,11 +93,11 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
         return Object.values(scores).reduce((sum, s) => sum + s, 0)
     }
 
-    if (!isOpen || !council) return null
+    if (!isOpen || !council || !editedItem) return null
 
     // Ensure state resets when a new council is selected
-    const progressPercent = council.sessions_total > 0
-        ? Math.min(100, Math.max(0, Math.round((council.sessions_completed / council.sessions_total) * 100)))
+    const progressPercent = editedItem.sessions_total > 0
+        ? Math.min(100, Math.max(0, Math.round((editedItem.sessions_completed / editedItem.sessions_total) * 100)))
         : 0
     const handleBackdropClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) onClose()
@@ -95,19 +122,53 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 to-purple-500/50" />
 
                             <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <div className="flex items-center gap-3 mb-1">
-                                        <h2 className="text-2xl font-bold tracking-tight">{council.name}</h2>
-                                        <span className={`px-2.5 py-1 text-xs font-medium rounded-full border flex items-center ${GetStatusColor(council.status)}`}>
-                                            {council.status}
-                                        </span>
-                                    </div>
-                                    <p className="text-muted-foreground flex items-center">
-                                        <GraduationCap className="w-4 h-4 mr-2" />
-                                        {council.field}
-                                    </p>
+                                <div className="flex-1 mr-4">
+                                    {isEditing ? (
+                                        <div className="space-y-2">
+                                            <Input
+                                                value={editedItem.name}
+                                                onChange={e => setEditedItem(prev => prev ? { ...prev, name: e.target.value } : prev)}
+                                                className="text-xl font-bold tracking-tight h-10 w-full"
+                                            />
+                                            <div className="flex items-center gap-2">
+                                                <GraduationCap className="w-4 h-4 text-muted-foreground shrink-0" />
+                                                <Input
+                                                    value={editedItem.field}
+                                                    onChange={e => setEditedItem(prev => prev ? { ...prev, field: e.target.value } : prev)}
+                                                    className="h-8 text-sm flex-1"
+                                                />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <h2 className="text-2xl font-bold tracking-tight">{editedItem.name}</h2>
+                                                <span className={`px-2.5 py-1 text-xs font-medium rounded-full border flex items-center ${GetStatusColor(editedItem.status)}`}>
+                                                    {editedItem.status}
+                                                </span>
+                                            </div>
+                                            <p className="text-muted-foreground flex items-center">
+                                                <GraduationCap className="w-4 h-4 mr-2" />
+                                                {editedItem.field}
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="flex items-center gap-2">
+                                    {isEditing ? (
+                                        <>
+                                            <button onClick={() => { setIsEditing(false); setEditedItem({ ...council }); }} className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-1">
+                                                <XCircle className="w-4 h-4" /> <span className="text-xs font-medium">{t.detail.cancel}</span>
+                                            </button>
+                                            <button onClick={handleSave} className="p-2 text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors flex items-center gap-1">
+                                                <Save className="w-4 h-4" /> <span className="text-xs font-medium">Lưu</span>
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button onClick={() => setIsEditing(true)} className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-1">
+                                            <Edit className="w-4 h-4" /> <span className="text-xs font-medium">Sửa</span>
+                                        </button>
+                                    )}
                                     <button
                                         onClick={onOpenInvites}
                                         className="p-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-full transition-colors flex items-center text-sm px-4 font-medium"
@@ -118,7 +179,7 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                                     </button>
                                     <button
                                         onClick={onClose}
-                                        className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground"
+                                        className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground ml-1"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
@@ -128,16 +189,25 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                             <div className="flex flex-wrap items-center gap-6 text-sm">
                                 <div className="flex items-center text-muted-foreground">
                                     <Calendar className="w-4 h-4 mr-2" />
-                                    <span className="font-medium text-foreground">{new Date(council.date).toLocaleDateString('vi-VN')}</span>
+                                    {isEditing ? (
+                                        <Input
+                                            type="date"
+                                            value={editedItem.date.split('T')[0]}
+                                            onChange={e => setEditedItem(prev => prev ? { ...prev, date: e.target.value } : prev)}
+                                            className="h-8 text-sm w-36 ml-1"
+                                        />
+                                    ) : (
+                                        <span className="font-medium text-foreground">{new Date(editedItem.date).toLocaleDateString('vi-VN')}</span>
+                                    )}
                                 </div>
                                 <div className="flex items-center text-muted-foreground">
                                     <Users className="w-4 h-4 mr-2" />
-                                    <span className="font-medium text-foreground">{council.members.length}</span>
+                                    <span className="font-medium text-foreground">{editedItem.members.length}</span>
                                     <span className="ml-1">Thành viên</span>
                                 </div>
                                 <div className="flex-1 max-w-[200px]">
                                     <div className="flex justify-between items-center text-xs mb-1">
-                                        <span className="text-muted-foreground">Tiến độ ({council.sessions_completed}/{council.sessions_total})</span>
+                                        <span className="text-muted-foreground">Tiến độ ({editedItem.sessions_completed}/{editedItem.sessions_total})</span>
                                         <span className="font-medium">{progressPercent}%</span>
                                     </div>
                                     <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
@@ -191,7 +261,7 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                                     </div>
 
                                     <div className="grid gap-4">
-                                        {council.members.map(member => (
+                                        {editedItem.members.map(member => (
                                             <div key={member.id} className="p-4 bg-muted/30 border border-border/50 rounded-xl flex items-center justify-between group">
                                                 <div className="flex items-center gap-4">
                                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white ${getColor(member.name)}`}>
@@ -228,7 +298,7 @@ export function CouncilDetailPanel({ council, isOpen, onClose, onOpenInvites }: 
                                     <h3 className="font-semibold text-lg">Phiên bảo vệ</h3>
 
                                     <div className="relative border-l-2 border-muted ml-3 space-y-8 pb-4">
-                                        {council.sessions.map((session, i) => (
+                                        {editedItem.sessions.map((session, i) => (
                                             <div key={session.id} className="relative pl-6">
                                                 {/* Timeline Node */}
                                                 <div className={`absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-background 

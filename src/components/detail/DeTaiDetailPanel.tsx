@@ -1,15 +1,23 @@
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Edit, MoreHorizontal, FileText, ChevronRight } from 'lucide-react';
+import { X, Edit, MoreHorizontal, FileText, ChevronRight, Save, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { useTranslation } from '@/contexts/LanguageContext';
+import { toast } from 'sonner';
 import type { DeTai } from '@/data/mock';
+
 
 interface DeTaiDetailPanelProps {
   item: DeTai | null;
   isOpen: boolean;
   onClose: () => void;
+  onSave?: (updatedItem: DeTai) => Promise<void> | void;
+  onApprove?: (updatedItem: DeTai) => Promise<void> | void;
+  onReject?: (updatedItem: DeTai) => Promise<void> | void;
 }
 
 const backdropVariants = {
@@ -40,12 +48,72 @@ const mockDocuments = [
   { name: 'bao_cao_tien_do.docx', size: '1.1MB', date: '18/02' },
 ];
 
-export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailPanelProps) {
+export default function DeTaiDetailPanel({ item, isOpen, onClose, onSave, onApprove, onReject }: DeTaiDetailPanelProps) {
   const { t } = useTranslation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedItem, setEditedItem] = useState<DeTai | null>(null);
 
-  if (!item) return null;
+  // Sync state when item changes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsEditing(false);
+      return;
+    }
+    if (item) {
+      setEditedItem({ ...item });
+      setIsEditing(false);
+    } else {
+      setEditedItem(null);
+    }
+  }, [item, isOpen]);
 
-  const studentPct = Math.round((item.soLuongSV / item.soLuongSVMax) * 100);
+  if (!item || !editedItem) return null;
+
+  const handleSave = async () => {
+    if (!editedItem) return;
+    try {
+      if (onSave) {
+        await onSave(editedItem);
+      }
+      setIsEditing(false);
+      toast.success('Đã lưu thay đổi đề tài thành công');
+    } catch (error) {
+      console.error('Failed to save DeTai:', error);
+      toast.error('Lỗi khi lưu thay đổi đề tài');
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!editedItem) return;
+    const updated = { ...editedItem, trangThai: 'dang_thuc_hien' as const };
+    try {
+      if (onApprove) {
+        await onApprove(updated);
+      }
+      setEditedItem(updated);
+      toast.success('Đã duyệt đề tài');
+    } catch (error) {
+      console.error('Failed to approve DeTai:', error);
+      toast.error('Lỗi khi duyệt đề tài');
+    }
+  };
+
+  const handleReject = async () => {
+    if (!editedItem) return;
+    const updated = { ...editedItem, trangThai: 'bi_tu_choi' as const };
+    try {
+      if (onReject) {
+        await onReject(updated);
+      }
+      setEditedItem(updated);
+      toast.success('Đã từ chối đề tài');
+    } catch (error) {
+      console.error('Failed to reject DeTai:', error);
+      toast.error('Lỗi khi từ chối đề tài');
+    }
+  };
+
+  const studentPct = Math.round((editedItem.soLuongSV / editedItem.soLuongSVMax) * 100);
 
   return (
     <AnimatePresence>
@@ -73,10 +141,23 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailP
                 {t.detail.close}
               </Button>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
-                  <Edit className="h-4 w-4" />
-                  {t.detail.edit}
-                </Button>
+                {isEditing ? (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={() => { setIsEditing(false); setEditedItem({ ...item }); }} className="gap-1.5 text-muted-foreground">
+                      <XCircle className="h-4 w-4" />
+                      {t.detail.cancel}
+                    </Button>
+                    <Button variant="default" size="sm" onClick={handleSave} className="gap-1.5">
+                      <Save className="h-4 w-4" />
+                      {t.detail.save}
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-muted-foreground">
+                    <Edit className="h-4 w-4" />
+                    {t.detail.edit}
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -85,10 +166,18 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailP
 
             {/* Title area */}
             <div className="border-b border-border px-5 py-4">
-              <p className="font-mono text-xs text-muted-foreground">{item.ma}</p>
-              <h2 className="mt-1 font-display text-lg font-semibold leading-tight text-foreground">{item.ten}</h2>
+              <p className="font-mono text-xs text-muted-foreground">{editedItem.ma}</p>
+              {isEditing ? (
+                <Input
+                  value={editedItem.ten}
+                  onChange={(e) => setEditedItem(prev => prev ? { ...prev, ten: e.target.value } : prev)}
+                  className="mt-1 font-display text-lg font-semibold h-10"
+                />
+              ) : (
+                <h2 className="mt-1 font-display text-lg font-semibold leading-tight text-foreground">{editedItem.ten}</h2>
+              )}
               <div className="mt-2">
-                <StatusBadge status={item.trangThai} />
+                <StatusBadge status={editedItem.trangThai} />
               </div>
             </div>
 
@@ -111,22 +200,29 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailP
                   <motion.div variants={tabContentVariants} initial="initial" animate="animate" className="space-y-5">
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t.detail.supervisor}</p>
-                      <p className="mt-1 text-sm font-medium text-foreground">{item.giangVien}</p>
-                      <p className="text-xs text-muted-foreground">{t.detail.department}</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">{editedItem.giangVien}</p>
                     </div>
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t.detail.field}</p>
                       <div className="mt-1 flex gap-1.5">
-                        <span className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">{item.linhVuc}</span>
+                        <span className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">{editedItem.linhVuc}</span>
                       </div>
                     </div>
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t.detail.description}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.mo_ta}</p>
+                      {isEditing ? (
+                        <Textarea
+                          value={editedItem.mo_ta}
+                          onChange={(e) => setEditedItem(prev => prev ? { ...prev, mo_ta: e.target.value } : prev)}
+                          className="mt-1 text-sm min-h-[100px]"
+                        />
+                      ) : (
+                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{editedItem.mo_ta}</p>
+                      )}
                     </div>
                     <div>
                       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {t.detail.registered_students}: {item.soLuongSV}/{item.soLuongSVMax}
+                        {t.detail.registered_students}: {editedItem.soLuongSV}/{editedItem.soLuongSVMax}
                       </p>
                       <div className="mt-2 h-1.5 w-full rounded-full bg-secondary">
                         <motion.div
@@ -141,11 +237,11 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailP
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t.detail.created_date}</p>
-                        <p className="mt-1 text-sm text-foreground">{item.ngayTao}</p>
+                        <p className="mt-1 text-sm text-foreground">{editedItem.ngayTao}</p>
                       </div>
                       <div>
                         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t.detail.semester}</p>
-                        <p className="mt-1 text-sm text-foreground">{item.hocKy}</p>
+                        <p className="mt-1 text-sm text-foreground">{editedItem.hocKy}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -153,7 +249,7 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailP
 
                 <TabsContent value="students" className="m-0 px-5 py-4">
                   <motion.div variants={tabContentVariants} initial="initial" animate="animate">
-                    {item.soLuongSV > 0 ? (
+                    {editedItem.soLuongSV > 0 ? (
                       <div className="rounded-lg border border-border p-3">
                         <div className="flex items-center justify-between">
                           <div>
@@ -195,22 +291,22 @@ export default function DeTaiDetailPanel({ item, isOpen, onClose }: DeTaiDetailP
             </Tabs>
 
             {/* Footer */}
-            {item.trangThai === 'cho_duyet' && (
+            {editedItem.trangThai === 'cho_duyet' && (
               <div className="border-t border-border px-5 py-3">
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">{t.detail.keyboard_hint}</p>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10">
+                    <Button variant="outline" size="sm" onClick={handleReject} className="text-destructive border-destructive/30 hover:bg-destructive/10">
                       {t.detail.reject}
                     </Button>
-                    <Button size="sm">
+                    <Button size="sm" onClick={handleApprove}>
                       {t.detail.approve}
                     </Button>
                   </div>
                 </div>
               </div>
             )}
-            {item.trangThai !== 'cho_duyet' && (
+            {editedItem.trangThai !== 'cho_duyet' && (
               <div className="border-t border-border px-5 py-3">
                 <p className="text-xs text-muted-foreground text-center">{t.detail.keyboard_hint}</p>
               </div>

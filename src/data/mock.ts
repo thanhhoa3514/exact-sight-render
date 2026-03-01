@@ -42,7 +42,7 @@ export const statusConfig: Record<ThesisStatus, { label: string; variant: string
   dang_thuc_hien: { label: 'Đang thực hiện', variant: 'violet' },
   hoan_thanh: { label: 'Hoàn thành', variant: 'success' },
   bi_tu_choi: { label: 'Từ chối', variant: 'destructive' },
-  da_huy: { label: 'Đã hủy', variant: 'muted' },
+  da_huy: { label: 'Đã Huỷ', variant: 'muted' },
 };
 
 export const mockDeTai: DeTai[] = [
@@ -82,7 +82,7 @@ export const statusChartData = [
   { name: 'Đã duyệt', value: 22, fill: 'hsl(217, 91%, 60%)' },
   { name: 'Hoàn thành', value: 35, fill: 'hsl(160, 84%, 39%)' },
   { name: 'Từ chối', value: 8, fill: 'hsl(0, 84%, 60%)' },
-  { name: 'Đã hủy', value: 4, fill: 'hsl(220, 9%, 70%)' },
+  { name: 'Đã {t.detail.cancel}', value: 4, fill: 'hsl(220, 9%, 70%)' },
 ];
 
 // ── Student types & data ─────────────────────────────────
@@ -90,11 +90,11 @@ export const statusChartData = [
 export type StudentStatus = 'chua_dang_ky' | 'da_dang_ky' | 'dang_thuc_hien' | 'cho_bao_ve' | 'hoan_thanh';
 
 export const studentStatusConfig: Record<StudentStatus, { label: string; variant: string }> = {
-  chua_dang_ky:   { label: 'Chưa đăng ký',   variant: 'muted' },
-  da_dang_ky:     { label: 'Đã đăng ký',     variant: 'info' },
+  chua_dang_ky: { label: 'Chưa đăng ký', variant: 'muted' },
+  da_dang_ky: { label: 'Đã đăng ký', variant: 'info' },
   dang_thuc_hien: { label: 'Đang thực hiện', variant: 'violet' },
-  cho_bao_ve:     { label: 'Chờ bảo vệ',     variant: 'warning' },
-  hoan_thanh:     { label: 'Hoàn thành',     variant: 'success' },
+  cho_bao_ve: { label: 'Chờ bảo vệ', variant: 'warning' },
+  hoan_thanh: { label: 'Hoàn thành', variant: 'success' },
 };
 
 export interface StudentThesis {

@@ -1,15 +1,20 @@
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Edit, MoreHorizontal, FileText, Star } from 'lucide-react';
+import { X, Edit, MoreHorizontal, FileText, Star, Save, XCircle, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { useTranslation } from '@/contexts/LanguageContext';
+import { toast } from 'sonner';
 import type { LuanVan } from '@/data/mock';
 
 interface LuanVanDetailPanelProps {
   item: LuanVan | null;
   isOpen: boolean;
   onClose: () => void;
+  onAssignCouncil?: (item: LuanVan) => Promise<void> | void;
+  onSave?: (item: LuanVan) => Promise<void> | void;
 }
 
 const backdropVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
@@ -62,14 +67,58 @@ function getGrade(avg: number) {
   return 'grade_average';
 }
 
-export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDetailPanelProps) {
+export default function LuanVanDetailPanel({ item, isOpen, onClose, onAssignCouncil, onSave }: LuanVanDetailPanelProps) {
   const { t } = useTranslation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedItem, setEditedItem] = useState<LuanVan | null>(null);
 
-  if (!item) return null;
+  useEffect(() => {
+    if (!isOpen) {
+      setIsEditing(false);
+      return;
+    }
+    if (item) {
+      setEditedItem({ ...item });
+      setIsEditing(false);
+    } else {
+      setEditedItem(null);
+    }
+  }, [item, isOpen]);
 
-  const hasScores = item.diemGVHD !== undefined && item.diemPhanBien !== undefined && item.diemHoiDong !== undefined;
-  const avg = hasScores ? ((item.diemGVHD! + item.diemPhanBien! + item.diemHoiDong!) / 3) : 0;
+  if (!item || !editedItem) return null;
+
+  const hasScores = editedItem.diemGVHD !== undefined && editedItem.diemPhanBien !== undefined && editedItem.diemHoiDong !== undefined;
+  const avg = hasScores ? ((editedItem.diemGVHD! + editedItem.diemPhanBien! + editedItem.diemHoiDong!) / 3) : 0;
   const stars = Math.round(avg / 2);
+
+  const handleSave = async () => {
+    if (!editedItem) return;
+    try {
+      if (onSave) {
+        await onSave(editedItem);
+      }
+      setIsEditing(false);
+      toast.success('Đã lưu thay đổi luận văn thành công');
+    } catch (error) {
+      console.error('Failed to save LuanVan:', error);
+      toast.error('Lỗi khi lưu thay đổi luận văn');
+    }
+  };
+
+  const handleAssignCouncil = async () => {
+    if (!editedItem) return;
+    const updated = { ...editedItem, trangThai: 'dang_thuc_hien' as const };
+    try {
+      if (onAssignCouncil) {
+        await onAssignCouncil(updated);
+      }
+      setEditedItem(updated);
+      toast.success('Đã phân công hội đồng đánh giá');
+    } catch (error) {
+      console.error('Failed to assign council:', error);
+      toast.error('Lỗi khi phân công hội đồng');
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -97,10 +146,23 @@ export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDet
                 {t.detail.close}
               </Button>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
-                  <Edit className="h-4 w-4" />
-                  {t.detail.edit}
-                </Button>
+                {isEditing ? (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={() => { setIsEditing(false); setEditedItem({ ...item }); }} className="gap-1.5 text-muted-foreground">
+                      <XCircle className="h-4 w-4" />
+                      {t.detail.cancel}
+                    </Button>
+                    <Button variant="default" size="sm" onClick={handleSave} className="gap-1.5">
+                      <Save className="h-4 w-4" />
+                      {t.detail.save}
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-muted-foreground">
+                    <Edit className="h-4 w-4" />
+                    {t.detail.edit}
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -109,10 +171,18 @@ export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDet
 
             {/* Title */}
             <div className="border-b border-border px-5 py-4">
-              <p className="font-mono text-xs text-muted-foreground">{item.ma}</p>
-              <h2 className="mt-1 font-display text-lg font-semibold leading-tight text-foreground">{item.ten}</h2>
+              <p className="font-mono text-xs text-muted-foreground">{editedItem.ma}</p>
+              {isEditing ? (
+                <Input
+                  value={editedItem.ten}
+                  onChange={(e) => setEditedItem(prev => prev ? { ...prev, ten: e.target.value } : prev)}
+                  className="mt-1 font-display text-lg font-semibold h-10"
+                />
+              ) : (
+                <h2 className="mt-1 font-display text-lg font-semibold leading-tight text-foreground">{editedItem.ten}</h2>
+              )}
               <div className="mt-2">
-                <StatusBadge status={item.trangThai} />
+                <StatusBadge status={editedItem.trangThai} />
               </div>
             </div>
 
@@ -133,11 +203,30 @@ export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDet
               <div className="flex-1 overflow-y-auto">
                 <TabsContent value="info" className="m-0 px-5 py-4">
                   <motion.div variants={tabContentVariants} initial="initial" animate="animate" className="space-y-4">
-                    <InfoRow label={t.detail.student_name} value={item.sinhVien} />
-                    <InfoRow label={t.detail.student_id} value={item.mssv} mono />
-                    <InfoRow label={t.detail.supervisor} value={item.giangVienHD} />
-                    <InfoRow label={t.detail.defense_batch} value={`Đợt 1 - ${item.hocKy}`} />
-                    {item.ngayNop && <InfoRow label={t.detail.submitted_at} value={item.ngayNop} />}
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t.detail.student_name}</p>
+                          <Input value={editedItem.sinhVien} onChange={(e) => setEditedItem(prev => prev ? { ...prev, sinhVien: e.target.value } : prev)} className="mt-1 h-8" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t.detail.student_id}</p>
+                          <Input value={editedItem.mssv} onChange={(e) => setEditedItem(prev => prev ? { ...prev, mssv: e.target.value } : prev)} className="mt-1 h-8 font-mono" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t.detail.supervisor}</p>
+                          <Input value={editedItem.giangVienHD} onChange={(e) => setEditedItem(prev => prev ? { ...prev, giangVienHD: e.target.value } : prev)} className="mt-1 h-8" />
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <InfoRow label={t.detail.student_name} value={editedItem.sinhVien} />
+                        <InfoRow label={t.detail.student_id} value={editedItem.mssv} mono />
+                        <InfoRow label={t.detail.supervisor} value={editedItem.giangVienHD} />
+                      </>
+                    )}
+                    <InfoRow label={t.detail.defense_batch} value={`Đợt 1 - ${editedItem.hocKy}`} />
+                    {editedItem.ngayNop && <InfoRow label={t.detail.submitted_at} value={editedItem.ngayNop} />}
                     <InfoRow label={t.detail.plagiarism} value="8%" extra={`(✓ ${t.detail.valid})`} />
                   </motion.div>
                 </TabsContent>
@@ -147,13 +236,12 @@ export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDet
                     <div className="absolute left-[9px] top-2 bottom-2 w-px bg-border" />
                     {mockTimeline.map((step, i) => (
                       <motion.div key={i} variants={staggerItem} className="relative pb-6 last:pb-0">
-                        <div className={`absolute -left-6 top-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full border-2 ${
-                          step.done
-                            ? 'border-success bg-success text-success-foreground'
-                            : step.current
+                        <div className={`absolute -left-6 top-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full border-2 ${step.done
+                          ? 'border-success bg-success text-success-foreground'
+                          : step.current
                             ? 'border-warning bg-warning text-warning-foreground animate-pulse'
                             : 'border-border bg-card'
-                        }`}>
+                          }`}>
                           {step.done && <span className="text-[10px]">✓</span>}
                           {step.current && <span className="text-[10px]">⏳</span>}
                         </div>
@@ -175,9 +263,9 @@ export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDet
                   <motion.div variants={tabContentVariants} initial="initial" animate="animate" className="space-y-4">
                     {hasScores ? (
                       <>
-                        <ScoreBar label={t.detail.score_supervisor} score={item.diemGVHD} />
-                        <ScoreBar label={t.detail.score_reviewer} score={item.diemPhanBien} />
-                        <ScoreBar label={t.detail.score_council} score={item.diemHoiDong} />
+                        <ScoreBar label={t.detail.score_supervisor} score={editedItem.diemGVHD} />
+                        <ScoreBar label={t.detail.score_reviewer} score={editedItem.diemPhanBien} />
+                        <ScoreBar label={t.detail.score_council} score={editedItem.diemHoiDong} />
                         <div className="border-t border-border pt-4">
                           <div className="flex items-center gap-3">
                             <span className="w-20 text-sm font-semibold text-foreground">{t.detail.score_total}</span>
@@ -210,6 +298,12 @@ export default function LuanVanDetailPanel({ item, isOpen, onClose }: LuanVanDet
                     <FileText className="h-3 w-3" />
                     {t.detail.view_thesis}
                   </Button>
+                  {(editedItem.trangThai === 'da_duyet' || editedItem.trangThai === 'dang_thuc_hien') && (
+                    <Button size="sm" onClick={handleAssignCouncil} className="gap-1.5">
+                      <Users className="h-3 w-3" />
+                      {t.detail.assign_council}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

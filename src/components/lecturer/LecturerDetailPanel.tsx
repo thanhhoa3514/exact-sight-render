@@ -11,15 +11,22 @@ import {
     UserPlus,
     BookOpen,
     CheckCircle2,
-    FileText
+    FileText,
+    Edit,
+    Save,
+    XCircle
 } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 import type { Lecturer, AssignedStudent, CouncilRole } from '../../data/lecturerData'
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface LecturerDetailPanelProps {
     lecturer: Lecturer | null;
     isOpen: boolean;
     onClose: () => void;
     onAssignStudent: (lecturer: Lecturer) => void;
+    onSave?: (updatedItem: Lecturer) => Promise<void> | void;
 }
 
 type TabType = 'thong_tin' | 'sinh_vien' | 'hoi_dong' | 'ghi_chu'
@@ -28,9 +35,13 @@ export function LecturerDetailPanel({
     lecturer,
     isOpen,
     onClose,
-    onAssignStudent
+    onAssignStudent,
+    onSave
 }: LecturerDetailPanelProps) {
     const [activeTab, setActiveTab] = useState<TabType>('thong_tin')
+    const [isEditing, setIsEditing] = useState(false)
+    const [editedItem, setEditedItem] = useState<Lecturer | null>(null)
+    const { t } = useTranslation();
 
     // Prevent background scrolling when panel is open
     useEffect(() => {
@@ -46,14 +57,38 @@ export function LecturerDetailPanel({
 
     // Reset tab when lecturer changes
     useEffect(() => {
-        if (lecturer) setActiveTab('thong_tin')
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lecturer?.id])
+        if (!isOpen) {
+            setIsEditing(false)
+            return
+        }
 
-    if (!lecturer) return null
+        if (lecturer) {
+            setActiveTab('thong_tin')
+            setIsEditing(false)
+            setEditedItem({ ...lecturer })
+        } else {
+            setEditedItem(null)
+        }
+    }, [lecturer, isOpen])
 
-    const capacityPct = lecturer.sv_toi_da > 0
-        ? (lecturer.sv_hien_tai / lecturer.sv_toi_da) * 100
+    if (!lecturer || !editedItem) return null
+
+    const handleSave = async () => {
+        if (!editedItem) return;
+        try {
+            if (onSave) {
+                await onSave(editedItem);
+            }
+            setIsEditing(false);
+            toast.success('Đã lưu thay đổi thông tin giảng viên');
+        } catch (error) {
+            console.error('Failed to save lecturer:', error);
+            toast.error('Lỗi khi lưu thay đổi thông tin giảng viên');
+        }
+    }
+
+    const capacityPct = editedItem.sv_toi_da > 0
+        ? (editedItem.sv_hien_tai / editedItem.sv_toi_da) * 100
         : 0
     const isOverloaded = capacityPct > 100
     const isNearFull = capacityPct >= 80 && !isOverloaded
@@ -83,24 +118,66 @@ export function LecturerDetailPanel({
                         {/* Header */}
                         <div className="flex-none p-6 border-b border-gray-100 dark:border-gray-800 space-y-4">
                             <div className="flex items-start justify-between">
-                                <div>
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                        {lecturer.hoc_vi && `${lecturer.hoc_vi} `}
-                                        {lecturer.hoc_ham && `${lecturer.hoc_ham}. `}
-                                        {lecturer.name}
-                                    </h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                        {lecturer.ma_gv} • {lecturer.bo_mon}
-                                    </p>
+                                <div className="flex-1 mr-4">
+                                    {isEditing ? (
+                                        <div className="space-y-2">
+                                            <Input
+                                                value={editedItem.name}
+                                                onChange={e => setEditedItem(prev => prev ? { ...prev, name: e.target.value } : prev)}
+                                                className="font-bold text-lg h-9 w-full"
+                                            />
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    value={editedItem.ma_gv}
+                                                    onChange={e => setEditedItem(prev => prev ? { ...prev, ma_gv: e.target.value } : prev)}
+                                                    className="text-sm h-8 w-1/3"
+                                                    placeholder="Mã GV"
+                                                />
+                                                <Input
+                                                    value={editedItem.bo_mon}
+                                                    onChange={e => setEditedItem(prev => prev ? { ...prev, bo_mon: e.target.value } : prev)}
+                                                    className="text-sm h-8 flex-1"
+                                                    placeholder="Bộ môn"
+                                                />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                                {editedItem.hoc_vi && `${editedItem.hoc_vi} `}
+                                                {editedItem.hoc_ham && `${editedItem.hoc_ham}. `}
+                                                {editedItem.name}
+                                            </h2>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                {editedItem.ma_gv} • {editedItem.bo_mon}
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
-                                <button
-                                    onClick={onClose}
-                                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 
+                                <div className="flex items-center gap-2">
+                                    {isEditing ? (
+                                        <>
+                                            <button onClick={() => { setIsEditing(false); setEditedItem({ ...lecturer }); }} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-1">
+                                                <XCircle className="w-4 h-4" /> <span className="text-xs font-medium">{t.detail.cancel}</span>
+                                            </button>
+                                            <button onClick={handleSave} className="p-2 text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1">
+                                                <Save className="w-4 h-4" /> <span className="text-xs font-medium">Lưu</span>
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button onClick={() => setIsEditing(true)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-1">
+                                            <Edit className="w-4 h-4" /> <span className="text-xs font-medium">Sửa</span>
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={onClose}
+                                        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 
                              bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 
-                             rounded-full transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
+                             rounded-full transition-colors ml-2"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Quick Capacity Bar */}
@@ -162,9 +239,9 @@ export function LecturerDetailPanel({
 
                         {/* Content Area */}
                         <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-                            {activeTab === 'thong_tin' && <InfoTab lecturer={lecturer} />}
-                            {activeTab === 'sinh_vien' && <StudentsTab students={lecturer.students} />}
-                            {activeTab === 'hoi_dong' && <CouncilsTab councils={lecturer.councils} />}
+                            {activeTab === 'thong_tin' && <InfoTab lecturer={editedItem} isEditing={isEditing} setEditedItem={setEditedItem} />}
+                            {activeTab === 'sinh_vien' && <StudentsTab students={editedItem.students} />}
+                            {activeTab === 'hoi_dong' && <CouncilsTab councils={editedItem.councils} />}
                             {activeTab === 'ghi_chu' && <NotesTab />}
                         </div>
                     </motion.div>
@@ -175,22 +252,37 @@ export function LecturerDetailPanel({
 }
 
 // Subcomponents for tabs
-function InfoTab({ lecturer }: { lecturer: Lecturer }) {
+function InfoTab({ lecturer, isEditing, setEditedItem }: { lecturer: Lecturer, isEditing: boolean, setEditedItem: React.Dispatch<React.SetStateAction<Lecturer | null>> }) {
     return (
         <div className="space-y-6">
             {/* Contact */}
             <div className="space-y-3">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-2">Liên hệ & Cá nhân</h3>
                 <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    {lecturer.email}
+                    <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                    {isEditing ? (
+                        <Input
+                            value={lecturer.email}
+                            onChange={e => setEditedItem(prev => prev ? { ...prev, email: e.target.value } : prev)}
+                            className="h-8 text-sm"
+                        />
+                    ) : (
+                        <span>{lecturer.email}</span>
+                    )}
                 </div>
-                {lecturer.phone && (
-                    <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-                        <Phone className="w-4 h-4 text-gray-400" />
-                        {lecturer.phone}
-                    </div>
-                )}
+                <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+                    <Phone className="w-4 h-4 text-gray-400 shrink-0" />
+                    {isEditing ? (
+                        <Input
+                            value={lecturer.phone || ''}
+                            onChange={e => setEditedItem(prev => prev ? { ...prev, phone: e.target.value } : prev)}
+                            className="h-8 text-sm"
+                            placeholder="Số điện thoại"
+                        />
+                    ) : (
+                        <span>{lecturer.phone}</span>
+                    )}
+                </div>
             </div>
 
             {/* Expertise */}

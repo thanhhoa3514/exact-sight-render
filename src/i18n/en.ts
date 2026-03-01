@@ -110,6 +110,10 @@ export const en = {
   },
   detail: {
     close: 'Close',
+    cancel: 'Cancel',
+    save: 'Save',
+    delete: 'Delete',
+    assign_council: 'Assign Council',
     edit: 'Edit',
     overview: 'Overview',
     students: 'Students',
@@ -146,6 +150,16 @@ export const en = {
     grade_fair: 'Fair',
     grade_average: 'Average',
     keyboard_hint: 'ESC to close · ← → to navigate',
+  },
+  calendar: {
+    title: 'Calendar',
+    subtitle: 'Track defense schedules, deadlines, and personal notes',
+    add_note: 'Add Note',
+    today: 'Today',
+    view_agenda: 'View Agenda',
+    view_month: 'Month',
+    view_week: 'Week',
+    view_day: 'Day',
   },
   topbar: {
     search: 'Search...',

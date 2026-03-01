@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Send, CheckCircle2, AlertCircle } from 'lucide-react'
 import type { Council } from '../../data/councilData'
+import { useTranslation } from '@/contexts/LanguageContext'
 
 interface SendInvitesModalProps {
     isOpen: boolean
@@ -10,6 +11,7 @@ interface SendInvitesModalProps {
 }
 
 export function SendInvitesModal({ isOpen, onClose, council }: SendInvitesModalProps) {
+    const { t } = useTranslation();
     const [recipientType, setRecipientType] = useState<'all' | 'members' | 'students'>('all')
     const [sending, setSending] = useState(false)
     const [sent, setSent] = useState(false)
@@ -193,7 +195,7 @@ Chi tiết lịch trình vui lòng xem trên hệ thống. Trân trọng.`)
                                     disabled={sending}
                                     className="px-4 py-2 text-sm font-medium border border-border rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
                                 >
-                                    Hủy
+                                    {t.detail.cancel}
                                 </button>
                                 <button
                                     onClick={handleSend}

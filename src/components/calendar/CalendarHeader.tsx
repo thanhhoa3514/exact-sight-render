@@ -11,6 +11,7 @@ import {
     List
 } from 'lucide-react'
 import { UpcomingBadge } from './UpcomingBadge'
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface CalendarHeaderProps {
     currentDate: Date
@@ -29,16 +30,17 @@ export function CalendarHeader({
     onNavigate,
     onAddNote,
 }: CalendarHeaderProps) {
+    const { t } = useTranslation();
     return (
         <div className="flex flex-col gap-4 mb-6">
             {/* Title row */}
             <div className="flex items-start justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-                        Lịch
+                        {t.calendar.title}
                     </h1>
                     <p className="text-sm text-gray-500 mt-0.5">
-                        Theo dõi lịch bảo vệ, deadline và ghi chú cá nhân
+                        {t.calendar.subtitle}
                     </p>
                 </div>
                 <button
@@ -48,7 +50,7 @@ export function CalendarHeader({
                      text-sm font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors
                      active:scale-[0.98]"
                 >
-                    <Plus className="w-4 h-4" /> Thêm ghi chú
+                    <Plus className="w-4 h-4" /> {t.calendar.add_note}
                 </button>
             </div>
 
@@ -88,7 +90,7 @@ export function CalendarHeader({
                        border border-gray-200 dark:border-gray-700
                        hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ml-2"
                     >
-                        Hôm nay
+                        {t.calendar.today}
                     </button>
                 </div>
 
@@ -100,10 +102,10 @@ export function CalendarHeader({
                     <div className="flex items-center bg-gray-100 dark:bg-gray-800
                           rounded-lg p-1 gap-0.5">
                         {[
-                            { key: 'month', label: 'Tháng', icon: CalendarDays },
-                            { key: 'week', label: 'Tuần', icon: CalendarRange },
-                            { key: 'day', label: 'Ngày', icon: Calendar },
-                            { key: 'agenda', label: 'DS', icon: List },
+                            { key: 'month', label: t.calendar.view_month, icon: CalendarDays },
+                            { key: 'week', label: t.calendar.view_week, icon: CalendarRange },
+                            { key: 'day', label: t.calendar.view_day, icon: Calendar },
+                            { key: 'agenda', label: t.calendar.view_agenda, icon: List },
                         ].map(({ key, label, icon: Icon }) => (
                             <button
                                 key={key}
